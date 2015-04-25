@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -19,6 +21,9 @@ import com.hp.siu.utils.ClientException;
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ConfigManager;
 import com.hp.siu.utils.LoginContext;
+import com.hp.siu.utils.ManagedProcessClient;
+import com.hp.siu.utils.ProcMgrException;
+import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
 
 @Service
@@ -31,6 +36,9 @@ public class SiuService {
 	private String temporaryDirectory;
 	private LoginContext context;
 	private ConfigManager configManager;
+
+	private Map<String, ProcessManagerClient> managers;
+	private Map<String, ManagedProcessClient> processes;
 
 	private Collection<SiuListener> listeners;
 
@@ -106,6 +114,9 @@ public class SiuService {
 	}
 
 	public void disconnect() {
+		processes.clear();
+		managers.clear();
+
 		context = null;
 		configManager = null;
 
@@ -118,8 +129,12 @@ public class SiuService {
 
 	@PostConstruct
 	private void initialize() {
-		temporaryDirectory = System.getProperty("java.io.tmpdir");
-		listeners = new LinkedList<SiuListener>();
+		this.temporaryDirectory = System.getProperty("java.io.tmpdir");
+
+		this.managers = new HashMap<String, ProcessManagerClient>();
+		this.processes = new HashMap<String, ManagedProcessClient>();
+
+		this.listeners = new LinkedList<SiuListener>();
 	}
 
 	@PreDestroy
@@ -190,6 +205,44 @@ public class SiuService {
 		Collections.sort(collectorNames);
 
 		return collectorNames;
+	}
+
+	public void stopProcess(String serverName, String collectorName)
+			throws ProcMgrException, ClientException {
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		process.stopProcess();
+	}
+
+	private ManagedProcessClient getProcess(String serverName,
+			String collectorName) throws ProcMgrException, ClientException {
+		ProcessManagerClient manager = getManager(serverName);
+		ManagedProcessClient process;
+
+		if (processes.containsKey(collectorName)) {
+			process = processes.get(collectorName);
+		} else {
+			process = manager.getProcessByName(collectorName);
+
+			processes.put(collectorName, process);
+		}
+
+		return process;
+	}
+
+	private ProcessManagerClient getManager(String serverName) {
+		ProcessManagerClient manager;
+
+		if (managers.containsKey(serverName)) {
+			manager = managers.get(serverName);
+		} else {
+			manager = new ProcessManagerClient(serverName, configManager,
+					context);
+
+			managers.put(serverName, manager);
+		}
+
+		return manager;
 	}
 
 }
