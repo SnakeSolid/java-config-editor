@@ -1,6 +1,8 @@
 package ru.sname.config.service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 
@@ -154,7 +156,7 @@ public class SiuService {
 		path.append("/deployment/");
 
 		Config node = configManager.getConfigTree(path.toString());
-		Collection<String> serverNames = new LinkedList<String>();
+		ArrayList<String> serverNames = new ArrayList<String>();
 
 		@SuppressWarnings("unchecked")
 		Enumeration<String> children = node.getConfigNames();
@@ -162,6 +164,8 @@ public class SiuService {
 		while (children.hasMoreElements()) {
 			serverNames.add(children.nextElement());
 		}
+
+		Collections.sort(serverNames);
 
 		return serverNames;
 	}
@@ -174,16 +178,18 @@ public class SiuService {
 		path.append('/');
 
 		Config node = configManager.getConfigTree(path.toString());
-		Collection<String> serverNames = new LinkedList<String>();
+		ArrayList<String> collectorNames = new ArrayList<String>();
 
 		@SuppressWarnings("unchecked")
 		Enumeration<String> children = node.getConfigNames();
 
 		while (children.hasMoreElements()) {
-			serverNames.add(children.nextElement());
+			collectorNames.add(children.nextElement());
 		}
 
-		return serverNames;
+		Collections.sort(collectorNames);
+
+		return collectorNames;
 	}
 
 }
