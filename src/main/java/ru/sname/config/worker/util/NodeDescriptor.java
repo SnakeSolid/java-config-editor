@@ -1,4 +1,4 @@
-package ru.sname.config.model.util;
+package ru.sname.config.worker.util;
 
 public class NodeDescriptor {
 

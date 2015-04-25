@@ -1,4 +1,4 @@
-package ru.sname.config;
+package ru.sname.config.worker.util;
 
 public enum TokenType {
 
