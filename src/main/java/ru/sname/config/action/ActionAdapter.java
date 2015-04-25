@@ -48,4 +48,20 @@ public abstract class ActionAdapter extends AbstractAction {
 		return icon;
 	}
 
+	protected String asMessage(Throwable throwable) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(throwable.getMessage());
+
+		Throwable cause = throwable.getCause();
+
+		while (cause != null) {
+			builder.append('\n');
+			builder.append(cause.getMessage());
+
+			cause = cause.getCause();
+		}
+
+		return builder.toString();
+	}
+
 }
