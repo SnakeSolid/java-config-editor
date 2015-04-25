@@ -1,0 +1,11 @@
+
+syntax: glob
+.settings
+syntax: glob
+.classpath
+syntax: glob
+.project
+syntax: glob
+target
+syntax: glob
+*.jar
