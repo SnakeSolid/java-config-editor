@@ -53,7 +53,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		JLabel usernameLabel = new JLabel("Username:");
 		JLabel passworLabel = new JLabel("Password:");
 
-		iorText = new JTextField(30);
+		iorText = new JTextField("http://10.112.142.107:8158/", 30);
 		loginBox = new JCheckBox("Connect without security", true);
 		usernameText = new JTextField(30);
 		passwordText = new JTextField(30);
