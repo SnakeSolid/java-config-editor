@@ -307,6 +307,8 @@ public class MainFrame extends JFrame {
 		configurationMenu.add(configurationDebugAction);
 		configurationMenu.add(configurationRunAction);
 		configurationMenu.add(configurationStopAction);
+		configurationMenu.addSeparator();
+		configurationMenu.add(configurationLoadAction);
 
 		JMenu helpMenu = new JMenu("Help");
 		helpMenu.setMnemonic('h');

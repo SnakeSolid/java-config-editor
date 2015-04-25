@@ -39,7 +39,15 @@ public class LoadConfigWorker extends SwingWorker<Void, Void> {
 	protected Void doInBackground() throws Exception {
 		content = new StringBuilder(DEFAULT_CAPACITY);
 
-		Config tree = service.getConfigTree(serverName, collectorName);
+		Config tree;
+
+		try {
+			tree = service.getConfigTree(serverName, collectorName);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+
+			return null;
+		}
 
 		walkTree(tree);
 
@@ -48,7 +56,7 @@ public class LoadConfigWorker extends SwingWorker<Void, Void> {
 
 	private void walkTree(Config node) {
 		content.append('[');
-		content.append(node.getPathName());
+		content.append(node.getFullName());
 		content.append("]\n\n");
 
 		@SuppressWarnings("unchecked")

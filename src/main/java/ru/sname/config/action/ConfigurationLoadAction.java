@@ -49,14 +49,11 @@ public class ConfigurationLoadAction extends ActionAdapter {
 			return;
 		}
 
-		LoadConfigWorker worker = new 		LoadConfigWorker ();
+		LoadConfigWorker worker = new LoadConfigWorker();
 		worker.setService(siuService);
 		worker.setServer(serverName);
-		worker
-		.setCollector(collectorName);
-		worker
-		.setDocument(model.getConfigurationModel());
-		
-		JOptionPane.showMessageDialog(null, "message");
+		worker.setCollector(collectorName);
+		worker.setDocument(model.getConfigurationModel());
+		worker.execute();
 	}
 }
