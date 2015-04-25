@@ -1,6 +1,8 @@
 package ru.sname.config.action;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
 
@@ -25,6 +27,9 @@ public class ConfigurationLoadAction extends ActionAdapter {
 	public ConfigurationLoadAction() {
 		setName("Load");
 		setDescription("Load selected collector configuration.");
+		setMnemonic(KeyEvent.VK_L);
+		setAccelerator(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK
+				| InputEvent.SHIFT_DOWN_MASK);
 		setIcon("woodpecker");
 	}
 

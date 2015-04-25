@@ -1,7 +1,10 @@
 package ru.sname.config.action;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
 import org.springframework.stereotype.Component;
@@ -14,12 +17,17 @@ public class ConfigurationDebugAction extends ActionAdapter {
 	public ConfigurationDebugAction() {
 		setName("Debug");
 		setDescription("Debug current confuguration as selected collector.");
+		setMnemonic(KeyEvent.VK_D);
+		setAccelerator(KeyEvent.VK_F11);
 		setIcon("bug");
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		JOptionPane.showMessageDialog(null, "message");
+		JComponent source = (JComponent) event.getSource();
+		Container ancestor = source.getTopLevelAncestor();
+
+		JOptionPane.showMessageDialog(ancestor, "message");
 	}
 
 }

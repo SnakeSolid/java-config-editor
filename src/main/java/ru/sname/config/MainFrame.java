@@ -56,6 +56,8 @@ import ru.sname.config.model.ConfigModel;
 @Component
 public class MainFrame extends JFrame {
 
+	private static final int MINIMAL_BOX_SIZE = 300;
+
 	private static final long serialVersionUID = -8561388914130543345L;
 
 	private static final Logger logger = LoggerFactory
@@ -260,8 +262,12 @@ public class MainFrame extends JFrame {
 								.addComponent(collectorLabel))
 				.addGroup(
 						layout.createParallelGroup(Alignment.TRAILING, true)
-								.addComponent(serverBox)
-								.addComponent(collectorBox)));
+								.addComponent(serverBox, MINIMAL_BOX_SIZE,
+										GroupLayout.PREFERRED_SIZE,
+										GroupLayout.PREFERRED_SIZE)
+								.addComponent(collectorBox, MINIMAL_BOX_SIZE,
+										GroupLayout.PREFERRED_SIZE,
+										GroupLayout.PREFERRED_SIZE)));
 
 		layout.setVerticalGroup(layout
 				.createSequentialGroup()
@@ -280,9 +286,9 @@ public class MainFrame extends JFrame {
 		toolbar.add(runButton);
 		toolbar.add(stopButton);
 		toolbar.addSeparator();
-		toolbar.add(destinationPane);
-		toolbar.addSeparator();
 		toolbar.add(loadButton);
+		toolbar.addSeparator();
+		toolbar.add(destinationPane);
 
 		return toolbar;
 	}

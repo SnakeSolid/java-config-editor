@@ -1,6 +1,8 @@
 package ru.sname.config.action;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JOptionPane;
 
@@ -14,6 +16,8 @@ public class ConfigurationRunAction extends ActionAdapter {
 	public ConfigurationRunAction() {
 		setName("Run");
 		setDescription("Run current confuguration as selected collector.");
+		setMnemonic(KeyEvent.VK_R);
+		setAccelerator(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK);
 		setIcon("squirrel");
 	}
 

@@ -11,6 +11,10 @@ public abstract class ActionAdapter extends AbstractAction {
 
 	private static final long serialVersionUID = 5572493447767935716L;
 
+	protected void setAccelerator(int keyChar) {
+		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(keyChar, 0));
+	}
+
 	protected void setAccelerator(int keyChar, int modifiers) {
 		putValue(ACCELERATOR_KEY, KeyStroke.getKeyStroke(keyChar, modifiers));
 	}
