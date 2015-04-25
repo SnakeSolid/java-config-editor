@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.StringBoxModel;
 import ru.sname.config.service.SiuService;
-
-import com.hp.siu.utils.ClientException;
+import ru.sname.config.worker.StopProcessWorker;
 
 @SuppressWarnings("serial")
 @Component("configuration_stop_action")
@@ -54,24 +53,11 @@ public class ConfigurationStopAction extends ActionAdapter {
 			return;
 		}
 
-		try {
-			siuService.stopProcess(serverName, collectorName);
-		} catch (ClientException e) {
-			StringBuilder builder = new StringBuilder();
-			builder.append(e.getMessage());
-
-			Throwable cause = e.getCause();
-
-			while (cause != null) {
-				builder.append('\n');
-				builder.append(cause.getMessage());
-
-				cause = cause.getCause();
-			}
-
-			JOptionPane.showMessageDialog(null, builder.toString(),
-					"Communication error", JOptionPane.WARNING_MESSAGE);
-		}
+		StopProcessWorker worker = new StopProcessWorker();
+		worker.setService(siuService);
+		worker.setServer(serverName);
+		worker.setCollector(collectorName);
+		worker.execute();
 	}
 
 }

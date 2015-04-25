@@ -17,12 +17,16 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import com.hp.siu.corba.PropertyInfo;
+import com.hp.siu.corba.PropertyList;
 import com.hp.siu.utils.ClientException;
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ConfigManager;
 import com.hp.siu.utils.LoginContext;
 import com.hp.siu.utils.ManagedProcessClient;
 import com.hp.siu.utils.ProcMgrException;
+import com.hp.siu.utils.ProcessInfo;
+import com.hp.siu.utils.ProcessList;
 import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
 
@@ -209,9 +213,104 @@ public class SiuService {
 
 	public void stopProcess(String serverName, String collectorName)
 			throws ProcMgrException, ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		if (processExists(serverName, collectorName)) {
+			ManagedProcessClient process = getProcess(serverName, collectorName);
 
-		process.stopProcess();
+			process.stopProcess();
+
+			processes.remove(process);
+		}
+	}
+
+	public void cleanupProcess(String serverName, String collectorName)
+			throws ProcMgrException, ClientException {
+		if (processExists(serverName, collectorName)) {
+			ManagedProcessClient process = getProcess(serverName, collectorName);
+
+			process.cleanup();
+		}
+	}
+
+	public void startProcess(String serverName, String collectorName)
+			throws ProcMgrException, ClientException {
+		if (processExists(serverName, collectorName)) {
+			ManagedProcessClient process = getProcess(serverName, collectorName);
+			ArrayList<PropertyInfo> properties = getProcessProperties(
+					serverName, collectorName);
+			PropertyList propertyList = new PropertyList(
+					properties.toArray(new PropertyInfo[] {}));
+
+			process.startProcess(propertyList);
+		}
+	}
+
+	private ArrayList<PropertyInfo> getProcessProperties(String serverName,
+			String collectorName) throws ClientException {
+		ProcessManagerClient manager = getManager(serverName);
+		PropertyList runtimeParams = manager.getRuntimeParams();
+		ArrayList<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+
+		String fullName = getProcessPath(serverName, collectorName);
+		Config node = configManager.getConfigEntry(fullName);
+
+		if (hasEntry(node, "Properties")) {
+			Config propertiesNode = configManager.getConfigEntry(fullName
+					+ "/Properties");
+
+			@SuppressWarnings("unchecked")
+			Enumeration<String> attributeIt = propertiesNode
+					.getAttributeNames();
+
+			while (attributeIt.hasMoreElements()) {
+				String attribute = attributeIt.nextElement();
+
+				if (attribute.equals("CLASSPATH")) {
+					mergeProcessProperties(propertiesNode, runtimeParams,
+							properties, attribute);
+				} else if (attribute.equals("JVMOPT")) {
+					mergeProcessProperties(propertiesNode, runtimeParams,
+							properties, attribute);
+				} else if (attribute.equals("JVMPROPERTIES")) {
+					mergeProcessProperties(propertiesNode, runtimeParams,
+							properties, attribute);
+				}
+			}
+		}
+
+		return properties;
+	}
+
+	private void mergeProcessProperties(Config node,
+			PropertyList runtimeParams, Collection<PropertyInfo> properties,
+			String attribute) {
+		for (String value : node.getAttributes(attribute)) {
+			if (value.equals("%DEFAULTS%")) {
+				for (PropertyInfo info : runtimeParams.properties) {
+					if (attribute.equals(info.key)) {
+						properties.add(info);
+					}
+				}
+			} else {
+				PropertyInfo info = new PropertyInfo(attribute, value);
+
+				properties.add(info);
+			}
+		}
+	}
+
+	private boolean hasEntry(Config node, String string) {
+		@SuppressWarnings("unchecked")
+		Enumeration<String> nameIt = node.getConfigNames();
+
+		while (nameIt.hasMoreElements()) {
+			String childName = nameIt.nextElement();
+
+			if (childName.equals(string)) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private ManagedProcessClient getProcess(String serverName,
@@ -231,6 +330,39 @@ public class SiuService {
 		return process;
 	}
 
+	private boolean processExists(String serverName, String collectorName)
+			throws ProcMgrException, ClientException {
+		String fullName = getProcessPath(serverName, collectorName);
+		ProcessManagerClient manager = getManager(serverName);
+		ProcessList list = manager.getProcessList();
+
+		@SuppressWarnings("unchecked")
+		Enumeration<ProcessInfo> it = list.getProcesses();
+
+		while (it.hasMoreElements()) {
+			ProcessInfo processInfo = it.nextElement();
+			String processName = processInfo.getName();
+
+			if (fullName.equals(processName)) {
+				return true;
+			}
+		}
+
+		processes.keySet().remove(collectorName);
+
+		return false;
+	}
+
+	private String getProcessPath(String serverName, String collectorName) {
+		StringBuilder builder = new StringBuilder();
+		builder.append("/deployment/");
+		builder.append(serverName);
+		builder.append("/");
+		builder.append(collectorName);
+
+		return builder.toString();
+	}
+
 	private ProcessManagerClient getManager(String serverName) {
 		ProcessManagerClient manager;
 
@@ -244,6 +376,12 @@ public class SiuService {
 		}
 
 		return manager;
+	}
+
+	public void updateProcessConfig(String serverName, String collectorName,
+			Config node) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
