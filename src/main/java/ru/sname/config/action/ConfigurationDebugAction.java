@@ -1,18 +1,27 @@
 package ru.sname.config.action;
 
-import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
-import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ru.sname.config.model.ConfigModel;
+import ru.sname.config.model.StringBoxModel;
+import ru.sname.config.service.SiuService;
+import ru.sname.config.worker.DebugProcessWorker;
+
+@SuppressWarnings("serial")
 @Component("configuration_debug_action")
 public class ConfigurationDebugAction extends ActionAdapter {
 
-	private static final long serialVersionUID = 8622036338103433498L;
+	@Autowired
+	private ConfigModel model;
+
+	@Autowired
+	private SiuService siuService;
 
 	public ConfigurationDebugAction() {
 		setName("Debug");
@@ -24,10 +33,31 @@ public class ConfigurationDebugAction extends ActionAdapter {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		JComponent source = (JComponent) event.getSource();
-		Container ancestor = source.getTopLevelAncestor();
+		if (!siuService.isConnected()) {
+			JOptionPane.showMessageDialog(null, "SIU does not connected.",
+					"Communication error", JOptionPane.WARNING_MESSAGE);
 
-		JOptionPane.showMessageDialog(ancestor, "message");
+			return;
+		}
+
+		StringBoxModel servers = model.getServersModel();
+		String serverName = (String) servers.getSelectedItem();
+		StringBoxModel collectors = model.getCollectorsModel();
+		String collectorName = (String) collectors.getSelectedItem();
+
+		if (collectorName == null) {
+			JOptionPane.showMessageDialog(null, "Collector does not chosen.",
+					"Communication error", JOptionPane.WARNING_MESSAGE);
+
+			return;
+		}
+
+		DebugProcessWorker worker = new DebugProcessWorker();
+		worker.setService(siuService);
+		worker.setServer(serverName);
+		worker.setCollector(collectorName);
+		worker.setDocument(model.getConfigurationModel());
+		worker.execute();
 	}
 
 }
