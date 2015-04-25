@@ -216,12 +216,13 @@ public class SiuService {
 
 	private ManagedProcessClient getProcess(String serverName,
 			String collectorName) throws ProcMgrException, ClientException {
-		ProcessManagerClient manager = getManager(serverName);
 		ManagedProcessClient process;
 
 		if (processes.containsKey(collectorName)) {
 			process = processes.get(collectorName);
 		} else {
+			ProcessManagerClient manager = getManager(serverName);
+
 			process = manager.getProcessByName(collectorName);
 
 			processes.put(collectorName, process);
