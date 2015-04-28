@@ -42,6 +42,7 @@ import javax.swing.PopupFactory;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
+import javax.swing.undo.UndoManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import ru.sname.config.action.EditRedoAction;
+import ru.sname.config.action.EditUndoAction;
 import ru.sname.config.listener.DocumentHighlightListener;
+import ru.sname.config.listener.FilterUndoListener;
 import ru.sname.config.listener.UpdateTreeListener;
 import ru.sname.config.model.ConfigModel;
 
@@ -126,6 +130,20 @@ public class MainFrame extends JFrame {
 
 		// -------------------------
 
+		InputMap inputMap = configText.getInputMap();
+		UndoManager undoManager = new UndoManager();
+		FilterUndoListener editFiler = new FilterUndoListener(undoManager);
+		model.getConfigurationModel().addUndoableEditListener(editFiler);
+
+		inputMap = configText.getInputMap();
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+				InputEvent.CTRL_DOWN_MASK), new EditUndoAction(undoManager));
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+				InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK),
+				new EditRedoAction(undoManager));
+
+		// -------------------------
+
 		Font monospacedFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
 		Font sansSerifFont = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
 
@@ -133,7 +151,7 @@ public class MainFrame extends JFrame {
 
 		// -------------------------
 
-		InputMap inputMap = configText.getInputMap();
+		inputMap = configText.getInputMap();
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
 				InputEvent.CTRL_DOWN_MASK), "suggest");
 
