@@ -57,6 +57,7 @@ public class ConfigurationStopAction extends ActionAdapter {
 		worker.setService(siuService);
 		worker.setServer(serverName);
 		worker.setCollector(collectorName);
+		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
 	}
 

@@ -59,6 +59,7 @@ public class ConfigurationLoadAction extends ActionAdapter {
 		worker.setServer(serverName);
 		worker.setCollector(collectorName);
 		worker.setDocument(model.getConfigurationModel());
+		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
 	}
 }

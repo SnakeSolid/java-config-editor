@@ -1,43 +1,118 @@
 package ru.sname.config.worker;
 
-import javax.swing.SwingWorker;
+import java.util.Collection;
+
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.sname.config.service.SiuService;
+import ru.sname.config.tree.ConfigNode;
+import ru.sname.config.tree.TreeParser;
 
+import com.hp.siu.utils.ClientException;
 import com.hp.siu.utils.Config;
-import com.hp.siu.utils.InvalidStateException;
 
-public class DebugProcessWorker extends SwingWorker<Void, Void> {
+public class DebugProcessWorker extends AbstractSuiWorker {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(HighlightWorker.class);
+			.getLogger(DebugProcessWorker.class);
 
-	private SiuService service;
-	private String serverName;
-	private String collectorName;
 	private String content;
 
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected Void doInBackground() {
+		append("Stopping collector {0}...", collectorName);
+
 		try {
 			service.stopProcess(serverName, collectorName);
-		} catch (InvalidStateException e) {
+		} catch (ClientException e) {
 			logger.warn(e.getMessage(), e);
 		}
 
-		service.cleanupProcess(serverName, collectorName);
+		append("Collector {0} has been stopped.", collectorName);
+		append("Cleaning collector {0}...", collectorName);
 
-		Config node = new Config(collectorName);
+		try {
+			service.cleanupProcess(serverName, collectorName);
+		} catch (ClientException e) {
+			append("Can not cleanup collector, caused by: {0}.", e.getMessage());
+			logger.warn("Can not cleanup collector", e);
+		}
 
-		service.updateProcessConfig(serverName, collectorName, node);
-		service.startProcess(serverName, collectorName);
+		append("Collector has been cleaned.");
+		append("Updating collector {0} configuration...", collectorName);
+
+		ConfigNode root = TreeParser.parse(content);
+		Collection<ConfigNode> processes = findProcesses(root);
+
+		if (processes.isEmpty()) {
+			append("No processes found in config.", collectorName);
+			logger.info("No processes found in config.");
+
+			return null;
+		}
+
+		if (processes.size() > 1) {
+			append("More than one processes found in config.", collectorName);
+			logger.warn("More than one processes found in config.");
+
+			return null;
+		}
+
+		ConfigNode source = processes.iterator().next();
+
+		setDebugParameters(source);
+
+		Config config = buildConfig(source);
+
+		try {
+			service.updateProcessConfig(serverName, collectorName, config);
+		} catch (ClientException e) {
+			append("Can not update collector configuration, caused by: {0}.",
+					e.getMessage());
+			logger.warn("Can not update collector configuration.", e);
+
+			return null;
+		}
+
+		append("Configuration has been updated.");
+		append("Starting collector {0}...", collectorName);
+
+		try {
+			service.startProcess(serverName, collectorName);
+		} catch (ClientException e) {
+			append("Can not start collector, caused by: {0}.", e.getMessage());
+			logger.warn("Can start collector.", e);
+
+			return null;
+		}
+
+		append("Collector started successfully.");
 
 		return null;
+	}
+
+	private void setDebugParameters(ConfigNode node) {
+		ConfigNode properties;
+
+		if (node.hasChild("Properties")) {
+			properties = node.getChild("Properties");
+		} else {
+			properties = new ConfigNode("Properties");
+
+			node.addChild(properties);
+		}
+
+		StringBuilder builder = new StringBuilder(64);
+		builder.append("-Xrunjdwp:server=y,transport=dt_socket,address=");
+		builder.append(8000);
+		builder.append(",suspend=");
+		builder.append('n');
+
+		properties.pushValue("JVMOPTS", "-Xdebug");
+		properties.pushValue("JVMOPTS", builder.toString());
 	}
 
 	private String getContent(StyledDocument document) {
@@ -48,18 +123,6 @@ public class DebugProcessWorker extends SwingWorker<Void, Void> {
 
 			return "";
 		}
-	}
-
-	public void setService(SiuService service) {
-		this.service = service;
-	}
-
-	public void setServer(String serverName) {
-		this.serverName = serverName;
-	}
-
-	public void setCollector(String collectorName) {
-		this.collectorName = collectorName;
 	}
 
 	public void setDocument(StyledDocument document) {

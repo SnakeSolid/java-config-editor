@@ -127,6 +127,8 @@ public class MainFrame extends JFrame {
 		// -------------------------
 
 		Font monospacedFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+		Font sansSerifFont = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
+
 		configText.setFont(monospacedFont);
 
 		// -------------------------
@@ -183,9 +185,21 @@ public class MainFrame extends JFrame {
 				new JScrollPane(new JTable(model.getProblemsModel()),
 						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
-		infoPane.addTab("Log output", new JScrollPane(new JTextArea(),
+
+		JTextArea logText = new JTextArea();
+		logText.setFont(sansSerifFont);
+		logText.setEditable(false);
+
+		infoPane.addTab("Log output", logText);
+
+		JTextArea statusText = new JTextArea(model.getStatusModel());
+		statusText.setFont(sansSerifFont);
+		statusText.setEditable(false);
+
+		JScrollPane statusScroll = new JScrollPane(statusText,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		infoPane.addTab("Status", statusScroll);
 
 		// -------------------------
 

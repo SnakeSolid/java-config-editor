@@ -30,6 +30,7 @@ public class ConfigModel implements SiuListener, ListDataListener {
 	private File workingFile;
 	private StyledDocument configuration;
 	private DefaultTreeModel treeModel;
+	private StyledDocument status;
 
 	@Autowired
 	private SiuService siuService;
@@ -48,6 +49,7 @@ public class ConfigModel implements SiuListener, ListDataListener {
 		workingDirectory = new File(System.getProperty("user.dir"));
 		workingFile = null;
 		configuration = new DefaultStyledDocument();
+		status = new DefaultStyledDocument();
 
 		treeModel = new DefaultTreeModel(null);
 		treeModel.setRoot(new DefaultMutableTreeNode());
@@ -66,6 +68,10 @@ public class ConfigModel implements SiuListener, ListDataListener {
 
 	public StyledDocument getConfigurationModel() {
 		return configuration;
+	}
+
+	public StyledDocument getStatusModel() {
+		return status;
 	}
 
 	public TableModel getProblemsModel() {

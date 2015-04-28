@@ -1,44 +1,28 @@
 package ru.sname.config.worker;
 
-import javax.swing.SwingWorker;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.sname.config.service.SiuService;
+import com.hp.siu.utils.ClientException;
 
-import com.hp.siu.utils.InvalidStateException;
-
-public class StopProcessWorker extends SwingWorker<Void, Void> {
+public class StopProcessWorker extends AbstractSuiWorker {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(HighlightWorker.class);
-
-	private SiuService service;
-	private String serverName;
-	private String collectorName;
+			.getLogger(StopProcessWorker.class);
 
 	@Override
-	protected Void doInBackground() throws Exception {
+	protected Void doInBackground() {
+		append("Stopping collector {0}...", collectorName);
+
 		try {
 			service.stopProcess(serverName, collectorName);
-		} catch (InvalidStateException e) {
+		} catch (ClientException e) {
 			logger.warn(e.getMessage(), e);
 		}
 
+		append("Collector {0} has been stopped.", collectorName);
+
 		return null;
-	}
-
-	public void setService(SiuService service) {
-		this.service = service;
-	}
-
-	public void setServer(String serverName) {
-		this.serverName = serverName;
-	}
-
-	public void setCollector(String collectorName) {
-		this.collectorName = collectorName;
 	}
 
 }

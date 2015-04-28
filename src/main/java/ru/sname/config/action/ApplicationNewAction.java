@@ -14,10 +14,9 @@ import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
 
+@SuppressWarnings("serial")
 @Component("application_new_action")
 public class ApplicationNewAction extends ActionAdapter {
-
-	private static final long serialVersionUID = 3930722524574213888L;
 
 	@Autowired
 	private ConfigModel model;

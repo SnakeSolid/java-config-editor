@@ -6,22 +6,17 @@ import java.io.IOException;
 
 import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.sname.config.worker.util.Attributes;
+
 public class LoadFileWorker extends SwingWorker<Void, Void> {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LoadFileWorker.class);
-
-	private static final SimpleAttributeSet DEFAULT_STYLE;
-
-	static {
-		DEFAULT_STYLE = new SimpleAttributeSet();
-	}
 
 	private final File file;
 	private final StyledDocument document;
@@ -59,7 +54,7 @@ public class LoadFileWorker extends SwingWorker<Void, Void> {
 	protected void done() {
 		try {
 			document.remove(0, document.getLength());
-			document.insertString(0, content.toString(), DEFAULT_STYLE);
+			document.insertString(0, content.toString(), Attributes.DEFAULT);
 		} catch (BadLocationException e) {
 			logger.error(e.getMessage(), e);
 		}

@@ -2,41 +2,32 @@ package ru.sname.config.worker;
 
 import java.util.Enumeration;
 
-import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.sname.config.service.SiuService;
+import ru.sname.config.worker.util.Attributes;
 
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ShallowEntryException;
 
-public class LoadConfigWorker extends SwingWorker<Void, Void> {
+public class LoadConfigWorker extends AbstractSuiWorker {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(HighlightWorker.class);
 
 	private static final int DEFAULT_CAPACITY = 65536;
 
-	private static final SimpleAttributeSet DEFAULT_STYLE;
-
-	static {
-		DEFAULT_STYLE = new SimpleAttributeSet();
-	}
-
-	private SiuService service;
-	private String serverName;
-	private String collectorName;
 	private StyledDocument document;
-
 	private StringBuilder content;
 
 	@Override
 	protected Void doInBackground() throws Exception {
+		append("Loading configuration for {0}.", collectorName);
+
 		content = new StringBuilder(DEFAULT_CAPACITY);
 
 		Config tree;
@@ -44,12 +35,16 @@ public class LoadConfigWorker extends SwingWorker<Void, Void> {
 		try {
 			tree = service.getConfigTree(serverName, collectorName);
 		} catch (Exception e) {
+			append("Can not load configuration for {0}, caused by: {1}.",
+					collectorName, e.getMessage());
 			logger.error(e.getMessage(), e);
 
 			return null;
 		}
 
 		walkTree(tree);
+
+		append("Configuration has been loaded.");
 
 		return null;
 	}
@@ -98,22 +93,15 @@ public class LoadConfigWorker extends SwingWorker<Void, Void> {
 	protected void done() {
 		try {
 			document.remove(0, document.getLength());
-			document.insertString(0, content.toString(), DEFAULT_STYLE);
+			document.insertString(0, content.toString(), Attributes.DEFAULT);
 		} catch (BadLocationException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
 
+	@Override
 	public void setService(SiuService service) {
 		this.service = service;
-	}
-
-	public void setServer(String serverName) {
-		this.serverName = serverName;
-	}
-
-	public void setCollector(String collectorName) {
-		this.collectorName = collectorName;
 	}
 
 	public void setDocument(StyledDocument document) {

@@ -1,20 +1,18 @@
 package ru.sname.config.worker;
 
-import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ru.sname.config.worker.util.Attributes;
+import ru.sname.config.worker.util.Patterns;
 import ru.sname.config.worker.util.Token;
 import ru.sname.config.worker.util.TokenType;
 
@@ -22,42 +20,6 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(HighlightWorker.class);
-
-	private static final Pattern LINE_PATTERN;
-	private static final Pattern CATEGORY_PATTERN;
-
-	private static final SimpleAttributeSet CONFIG_CATHEGORY;
-	private static final SimpleAttributeSet CONFIG_ATTRIBUTE;
-	private static final SimpleAttributeSet CONFIG_EQUALS;
-	private static final SimpleAttributeSet CONFIG_VALUE;
-	private static final SimpleAttributeSet CONFIG_COMMENT;
-	private static final SimpleAttributeSet CONFIG_ERROR;
-
-	static {
-		LINE_PATTERN = Pattern.compile("[\\r\\n]+", Pattern.MULTILINE);
-		CATEGORY_PATTERN = Pattern.compile("^\\[", Pattern.MULTILINE);
-
-		CONFIG_CATHEGORY = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_CATHEGORY, Color.BLUE);
-		StyleConstants.setBold(CONFIG_CATHEGORY, true);
-
-		CONFIG_ATTRIBUTE = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_ATTRIBUTE, Color.BLACK);
-		StyleConstants.setBold(CONFIG_ATTRIBUTE, true);
-
-		CONFIG_EQUALS = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_EQUALS, Color.GRAY);
-
-		CONFIG_VALUE = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_VALUE, Color.BLUE);
-
-		CONFIG_COMMENT = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_COMMENT, Color.GRAY);
-
-		CONFIG_ERROR = new SimpleAttributeSet();
-		StyleConstants.setForeground(CONFIG_ERROR, Color.RED);
-		StyleConstants.setBold(CONFIG_ERROR, true);
-	}
 
 	private final StyledDocument document;
 	private final String content;
@@ -83,7 +45,7 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 			return;
 		}
 
-		Matcher matcher = CATEGORY_PATTERN.matcher(content);
+		Matcher matcher = Patterns.CATEGORY.matcher(content);
 		int index;
 
 		startPosition = 0;
@@ -145,7 +107,7 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 
 		findPosition(startPosition, endPosition);
 
-		Matcher matcher = LINE_PATTERN.matcher(content);
+		Matcher matcher = Patterns.LINE.matcher(content);
 		int index = startPosition;
 
 		while (matcher.find(index)) {
@@ -161,7 +123,7 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 
 				if (line.startsWith("#")) {
 					scanComment(line, index, start);
-				} else if (line.startsWith("[")) {
+				} else if (line.startsWith("[/")) {
 					scanCathegory(line, index, start);
 				} else {
 					scanAttribute(line, index, start);
@@ -231,32 +193,32 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 			switch (token.getType()) {
 			case CATEGORY:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_CATHEGORY, true);
+						token.getLength(), Attributes.CATHEGORY, true);
 				break;
 
 			case ATTRIBUTE:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_ATTRIBUTE, true);
+						token.getLength(), Attributes.ATTRIBUTE, true);
 				break;
 
 			case EQUALS_SIGN:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_EQUALS, true);
+						token.getLength(), Attributes.EQUALS, true);
 				break;
 
 			case VALUE:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_VALUE, true);
+						token.getLength(), Attributes.VALUE, true);
 				break;
 
 			case COMMENT:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_COMMENT, true);
+						token.getLength(), Attributes.COMMENT, true);
 				break;
 
 			case ERROR:
 				document.setCharacterAttributes(token.getStart(),
-						token.getLength(), CONFIG_ERROR, true);
+						token.getLength(), Attributes.ERROR, true);
 				break;
 			}
 		}

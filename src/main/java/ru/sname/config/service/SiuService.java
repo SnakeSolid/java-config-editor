@@ -25,8 +25,6 @@ import com.hp.siu.utils.ConfigManager;
 import com.hp.siu.utils.LoginContext;
 import com.hp.siu.utils.ManagedProcessClient;
 import com.hp.siu.utils.ProcMgrException;
-import com.hp.siu.utils.ProcessInfo;
-import com.hp.siu.utils.ProcessList;
 import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
 
@@ -213,9 +211,9 @@ public class SiuService {
 
 	public void stopProcess(String serverName, String collectorName)
 			throws ProcMgrException, ClientException {
-		if (processExists(serverName, collectorName)) {
-			ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, collectorName);
 
+		if (process != null) {
 			process.stopProcess();
 
 			processes.remove(process);
@@ -224,17 +222,18 @@ public class SiuService {
 
 	public void cleanupProcess(String serverName, String collectorName)
 			throws ProcMgrException, ClientException {
-		if (processExists(serverName, collectorName)) {
-			ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, collectorName);
 
+		if (process != null) {
 			process.cleanup();
 		}
 	}
 
 	public void startProcess(String serverName, String collectorName)
 			throws ProcMgrException, ClientException {
-		if (processExists(serverName, collectorName)) {
-			ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		if (process != null) {
 			ArrayList<PropertyInfo> properties = getProcessProperties(
 					serverName, collectorName);
 			PropertyList propertyList = new PropertyList(
@@ -324,33 +323,12 @@ public class SiuService {
 
 			process = manager.getProcessByName(collectorName);
 
-			processes.put(collectorName, process);
-		}
-
-		return process;
-	}
-
-	private boolean processExists(String serverName, String collectorName)
-			throws ProcMgrException, ClientException {
-		String fullName = getProcessPath(serverName, collectorName);
-		ProcessManagerClient manager = getManager(serverName);
-		ProcessList list = manager.getProcessList();
-
-		@SuppressWarnings("unchecked")
-		Enumeration<ProcessInfo> it = list.getProcesses();
-
-		while (it.hasMoreElements()) {
-			ProcessInfo processInfo = it.nextElement();
-			String processName = processInfo.getName();
-
-			if (fullName.equals(processName)) {
-				return true;
+			if (process != null) {
+				processes.put(collectorName, process);
 			}
 		}
 
-		processes.keySet().remove(collectorName);
-
-		return false;
+		return process;
 	}
 
 	private String getProcessPath(String serverName, String collectorName) {
@@ -379,9 +357,15 @@ public class SiuService {
 	}
 
 	public void updateProcessConfig(String serverName, String collectorName,
-			Config node) {
-		// TODO Auto-generated method stub
+			Config config) throws ClientException {
+		StringBuilder builder = new StringBuilder();
+		builder.append("/deployment/");
+		builder.append(serverName);
 
+		config.setPathName(builder.toString());
+		config.setName(collectorName);
+
+		configManager.setConfigTree(config);
 	}
 
 }
