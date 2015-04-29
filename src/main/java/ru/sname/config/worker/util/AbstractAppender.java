@@ -7,7 +7,7 @@ import javax.swing.text.StyledDocument;
 
 public abstract class AbstractAppender implements Runnable {
 
-	protected static final int MAX_DOCUMENT_SIZE = 8192;
+	protected static final int MAX_DOCUMENT_SIZE = 65536;
 
 	protected final StyledDocument document;
 

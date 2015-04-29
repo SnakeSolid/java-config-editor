@@ -25,7 +25,7 @@ public class LogTailer implements ListDataListener {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LogTailer.class);
 
-	private static final int MAX_BUFFER_SIZE = 8192;
+	private static final int MAX_BUFFER_SIZE = 65536;
 
 	@Autowired
 	private ConfigModel model;
