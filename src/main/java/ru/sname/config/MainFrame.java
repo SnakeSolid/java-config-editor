@@ -422,6 +422,9 @@ public class MainFrame extends JFrame implements SiuListener {
 	@Override
 	public void onDisconnected() {
 		setRemoteActionsEnaled(false);
+
+		serverBox.setSelectedItem(null);
+		collectorBox.setSelectedItem(null);
 	}
 
 }

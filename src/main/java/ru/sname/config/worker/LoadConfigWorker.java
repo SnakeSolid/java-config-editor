@@ -26,6 +26,18 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 
 	@Override
 	protected Void doInBackground() throws Exception {
+		if (serverName == null) {
+			append("Server does not chosen.");
+
+			return null;
+		}
+
+		if (collectorName == null) {
+			append("Collector does not chosen.");
+
+			return null;
+		}
+
 		append("Loading configuration for {0}.", collectorName);
 
 		content = new StringBuilder(DEFAULT_CAPACITY);
@@ -91,6 +103,10 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 
 	@Override
 	protected void done() {
+		if (content == null) {
+			return;
+		}
+
 		try {
 			document.remove(0, document.getLength());
 			document.insertString(0, content.toString(), Attributes.DEFAULT);
