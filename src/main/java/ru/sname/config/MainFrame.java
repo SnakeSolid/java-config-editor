@@ -120,6 +120,13 @@ public class MainFrame extends JFrame {
 	private void createComponents() {
 		createMenu();
 
+		// -------------------------
+
+		Font monospacedFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
+		Font sansSerifFont = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
+
+		// -------------------------
+
 		JToolBar toolbar = createToolbar();
 
 		JTextPane configText = new JTextPane(model.getConfigurationModel());
@@ -143,9 +150,6 @@ public class MainFrame extends JFrame {
 				new EditRedoAction(undoManager));
 
 		// -------------------------
-
-		Font monospacedFont = new Font(Font.MONOSPACED, Font.PLAIN, 14);
-		Font sansSerifFont = new Font(Font.SANS_SERIF, Font.PLAIN, 14);
 
 		configText.setFont(monospacedFont);
 
