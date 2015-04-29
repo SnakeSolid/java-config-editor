@@ -10,10 +10,10 @@ import javax.swing.text.StyledDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StatusAppender implements Runnable {
+public class DocumentAppender implements Runnable {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(StatusAppender.class);
+			.getLogger(DocumentAppender.class);
 
 	private static final int MAX_DOCUMENT_SIZE = 8192;
 	private static final DateFormat DATE_FORMATTER;
@@ -26,7 +26,7 @@ public class StatusAppender implements Runnable {
 	private final StyledDocument document;
 	private final String message;
 
-	public StatusAppender(StyledDocument document, String message) {
+	public DocumentAppender(StyledDocument document, String message) {
 		this.document = document;
 		this.message = message;
 	}

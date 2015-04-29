@@ -6,7 +6,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.text.StyledDocument;
 
-import ru.sname.config.worker.util.StatusAppender;
+import ru.sname.config.worker.util.DocumentAppender;
 
 public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 
@@ -22,7 +22,7 @@ public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 		}
 
 		String row = MessageFormat.format(message, params);
-		StatusAppender appender = new StatusAppender(statusDocument, row);
+		DocumentAppender appender = new DocumentAppender(statusDocument, row);
 		SwingUtilities.invokeLater(appender);
 	}
 
