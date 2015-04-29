@@ -117,6 +117,9 @@ public class MainFrame extends JFrame {
 	@Autowired
 	private ConfigModel model;
 
+	@Autowired
+	private LogTailer tailer;
+	
 	private void createComponents() {
 		createMenu();
 
@@ -225,6 +228,8 @@ public class MainFrame extends JFrame {
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		infoPane.addTab("Status", statusScroll);
+
+		infoPane.setSelectedComponent(statusScroll);
 
 		// -------------------------
 

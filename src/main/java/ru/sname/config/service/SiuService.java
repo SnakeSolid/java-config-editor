@@ -24,9 +24,9 @@ import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ConfigManager;
 import com.hp.siu.utils.LoginContext;
 import com.hp.siu.utils.ManagedProcessClient;
-import com.hp.siu.utils.ProcMgrException;
 import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
+import com.hp.siu.utils.SafeFileHandlerClient;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -179,7 +179,9 @@ public class SiuService {
 		Enumeration<String> children = node.getConfigNames();
 
 		while (children.hasMoreElements()) {
-			serverNames.add(children.nextElement());
+			String childName = children.nextElement();
+
+			serverNames.add(childName);
 		}
 
 		Collections.sort(serverNames);
@@ -201,7 +203,9 @@ public class SiuService {
 		Enumeration<String> children = node.getConfigNames();
 
 		while (children.hasMoreElements()) {
-			collectorNames.add(children.nextElement());
+			String childName = children.nextElement();
+
+			collectorNames.add(childName);
 		}
 
 		Collections.sort(collectorNames);
@@ -210,7 +214,7 @@ public class SiuService {
 	}
 
 	public void stopProcess(String serverName, String collectorName)
-			throws ProcMgrException, ClientException {
+			throws ClientException {
 		ManagedProcessClient process = getProcess(serverName, collectorName);
 
 		if (process != null) {
@@ -221,7 +225,7 @@ public class SiuService {
 	}
 
 	public void cleanupProcess(String serverName, String collectorName)
-			throws ProcMgrException, ClientException {
+			throws ClientException {
 		ManagedProcessClient process = getProcess(serverName, collectorName);
 
 		if (process != null) {
@@ -230,7 +234,7 @@ public class SiuService {
 	}
 
 	public void startProcess(String serverName, String collectorName)
-			throws ProcMgrException, ClientException {
+			throws ClientException {
 		ManagedProcessClient process = getProcess(serverName, collectorName);
 
 		if (process != null) {
@@ -313,7 +317,7 @@ public class SiuService {
 	}
 
 	private ManagedProcessClient getProcess(String serverName,
-			String collectorName) throws ProcMgrException, ClientException {
+			String collectorName) throws ClientException {
 		ManagedProcessClient process;
 
 		if (processes.containsKey(collectorName)) {
@@ -366,6 +370,39 @@ public class SiuService {
 		config.setName(collectorName);
 
 		configManager.setConfigTree(config);
+	}
+
+	public SafeFileHandlerClient createByteTailer(String serverName,
+			String collectorName) throws ClientException {
+		SafeFileHandlerClient handler = new SafeFileHandlerClient(serverName,
+				configManager, context);
+
+		return handler;
+	}
+
+	private String getVarRoot(String serverName) throws ClientException {
+		ProcessManagerClient manager = getManager(serverName);
+		PropertyList runtimeParams = manager.getRuntimeParams();
+
+		for (PropertyInfo property : runtimeParams.properties) {
+			if (property.key.equals("VARROOT")) {
+				return property.value;
+			}
+		}
+
+		return null;
+	}
+
+	public String getLogFileName(String serverName, String collectorName)
+			throws ClientException {
+		String varRoot = getVarRoot(serverName);
+		StringBuilder builder = new StringBuilder();
+		builder.append(varRoot);
+		builder.append("/log/");
+		builder.append(collectorName);
+		builder.append(".log");
+
+		return builder.toString();
 	}
 
 }
