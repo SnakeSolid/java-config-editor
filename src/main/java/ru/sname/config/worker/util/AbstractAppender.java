@@ -31,4 +31,10 @@ public abstract class AbstractAppender implements Runnable {
 		}
 	}
 
+	protected void trimAll() throws BadLocationException {
+		int length = document.getLength();
+
+		document.remove(0, length);
+	}
+
 }
