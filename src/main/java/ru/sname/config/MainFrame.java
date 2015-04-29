@@ -28,6 +28,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -53,8 +54,11 @@ import org.springframework.stereotype.Component;
 
 import ru.sname.config.action.EditRedoAction;
 import ru.sname.config.action.EditUndoAction;
+import ru.sname.config.action.TreeGotoAction;
+import ru.sname.config.action.TreeSelectAction;
 import ru.sname.config.listener.DocumentHighlightListener;
 import ru.sname.config.listener.FilterUndoListener;
+import ru.sname.config.listener.TreePopupMenuListener;
 import ru.sname.config.listener.UpdateTreeListener;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuListener;
@@ -250,6 +254,8 @@ public class MainFrame extends JFrame implements SiuListener {
 		JTree treePane = new JTree(model.getTreeModel());
 		treePane.setRootVisible(false);
 
+		createPopupMenu(treePane, configText);
+
 		JScrollPane treeScroll = new JScrollPane(treePane);
 		treeScroll
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -275,6 +281,14 @@ public class MainFrame extends JFrame implements SiuListener {
 		add(treeSplitPane, BorderLayout.CENTER);
 
 		pack();
+	}
+
+	private void createPopupMenu(final JTree treePane, JTextPane configText) {
+		JPopupMenu popup = new JPopupMenu();
+		popup.add(new TreeGotoAction(treePane, configText));
+		popup.add(new TreeSelectAction(treePane, configText));
+
+		treePane.addMouseListener(new TreePopupMenuListener(treePane, popup));
 	}
 
 	private JToolBar createToolbar() {
