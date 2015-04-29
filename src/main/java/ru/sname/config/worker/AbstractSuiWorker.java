@@ -9,7 +9,20 @@ import ru.sname.config.tree.ConfigNode;
 
 import com.hp.siu.utils.Config;
 
-public abstract class AbstractSuiWorker extends AbstractConfigWorker  {
+public abstract class AbstractSuiWorker extends AbstractConfigWorker {
+
+	protected static final String[] PROCESS_CLASS = { ".CollectorProcess",
+			".ConfigServerProcess", ".LogConsolidatorProcess",
+			".PolicyServerProcess", ".ScheduleServerProcess",
+			".SessionServerProcess" };
+
+	protected static final String PROPERTIES_NODE = "Properties";
+
+	protected static final String CLASSNAME_ATTRIBUTE = "ClassName";
+
+	protected static final String JVM_OPTIONS = "JVMOPTS";
+	protected static final String JVM_DEBUG = "-Xdebug";
+	protected static final String JVM_RUN_JDWP = "-Xrunjdwp";
 
 	protected SiuService service;
 	protected String serverName;
@@ -25,31 +38,13 @@ public abstract class AbstractSuiWorker extends AbstractConfigWorker  {
 
 	private void findProcessesReq(ConfigNode node,
 			Collection<ConfigNode> processes) {
-		for (String value : node.getValues("ClassName")) {
-			if (value.endsWith(".CollectorProcess")) {
-				processes.add(node);
+		for (String value : node.getValues(CLASSNAME_ATTRIBUTE)) {
+			for (String className : PROCESS_CLASS) {
+				if (value.endsWith(className)) {
+					processes.add(node);
 
-				return;
-			} else if (value.endsWith(".ConfigServerProcess")) {
-				processes.add(node);
-
-				return;
-			} else if (value.endsWith(".LogConsolidatorProcess")) {
-				processes.add(node);
-
-				return;
-			} else if (value.endsWith(".PolicyServerProcess")) {
-				processes.add(node);
-
-				return;
-			} else if (value.endsWith(".ScheduleServerProcess")) {
-				processes.add(node);
-
-				return;
-			} else if (value.endsWith(".SessionServerProcess")) {
-				processes.add(node);
-
-				return;
+					return;
+				}
 			}
 		}
 

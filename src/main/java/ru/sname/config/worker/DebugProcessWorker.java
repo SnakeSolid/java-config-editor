@@ -97,22 +97,44 @@ public class DebugProcessWorker extends AbstractSuiWorker {
 	private void setDebugParameters(ConfigNode node) {
 		ConfigNode properties;
 
-		if (node.hasChild("Properties")) {
-			properties = node.getChild("Properties");
+		if (node.hasChild(PROPERTIES_NODE)) {
+			properties = node.getChild(PROPERTIES_NODE);
 		} else {
-			properties = new ConfigNode("Properties");
+			properties = new ConfigNode(PROPERTIES_NODE);
 
 			node.addChild(properties);
 		}
 
 		StringBuilder builder = new StringBuilder(64);
-		builder.append("-Xrunjdwp:server=y,transport=dt_socket,address=");
+		builder.append(JVM_RUN_JDWP);
+		builder.append(":server=y,transport=dt_socket,address=");
 		builder.append(8000);
 		builder.append(",suspend=");
 		builder.append('n');
 
-		properties.pushValue("JVMOPTS", "-Xdebug");
-		properties.pushValue("JVMOPTS", builder.toString());
+		if (properties.hasAttribute(JVM_OPTIONS)) {
+			boolean debugFound = false;
+			boolean runjdwpFound = false;
+
+			for (String value : properties.getValues(JVM_OPTIONS)) {
+				if (value.equals(JVM_DEBUG)) {
+					debugFound = true;
+				} else if (value.startsWith(JVM_RUN_JDWP)) {
+					runjdwpFound = true;
+				}
+			}
+
+			if (!debugFound) {
+				properties.pushValue(JVM_OPTIONS, JVM_DEBUG);
+			}
+
+			if (!runjdwpFound) {
+				properties.pushValue(JVM_OPTIONS, builder.toString());
+			}
+		} else {
+			properties.pushValue(JVM_OPTIONS, JVM_DEBUG);
+			properties.pushValue(JVM_OPTIONS, builder.toString());
+		}
 	}
 
 	private String getContent(StyledDocument document) {

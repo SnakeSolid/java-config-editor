@@ -1,6 +1,7 @@
 package ru.sname.config.worker;
 
 import java.util.Collection;
+import java.util.LinkedList;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
@@ -62,6 +63,9 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		}
 
 		ConfigNode source = processes.iterator().next();
+
+		removeDebugParameters(source);
+
 		Config config = buildConfig(source);
 
 		try {
@@ -89,6 +93,34 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		append("Collector started successfully.");
 
 		return null;
+	}
+
+	private void removeDebugParameters(ConfigNode node) {
+		ConfigNode properties;
+
+		if (node.hasChild(PROPERTIES_NODE)) {
+			properties = node.getChild(PROPERTIES_NODE);
+		} else {
+			properties = new ConfigNode(PROPERTIES_NODE);
+
+			node.addChild(properties);
+		}
+
+		if (properties.hasAttribute(JVM_OPTIONS)) {
+			LinkedList<String> options = new LinkedList<String>();
+
+			for (String value : properties.getValues(JVM_OPTIONS)) {
+				if (value.equals(JVM_DEBUG)) {
+					continue;
+				} else if (value.startsWith(JVM_RUN_JDWP)) {
+					continue;
+				} else {
+					options.add(value);
+				}
+			}
+
+			properties.setValue(JVM_OPTIONS, options);
+		}
 	}
 
 	private String getContent(StyledDocument document) {
