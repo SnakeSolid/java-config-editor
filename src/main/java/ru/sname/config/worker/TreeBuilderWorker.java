@@ -4,24 +4,27 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.Scanner;
+import java.util.regex.Matcher;
 
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import ru.sname.config.worker.util.NodeDescriptor;
+import ru.sname.config.worker.util.PathDescriptor;
+import ru.sname.config.worker.util.Patterns;
 
 public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 
 	private DefaultTreeModel treeModel;
 	private String content;
 	private DefaultMutableTreeNode root;
-	private Collection<String> pathes;
+	private Collection<PathDescriptor> pathes;
 
 	@Override
 	protected Void doInBackground() throws Exception {
 		root = (DefaultMutableTreeNode) treeModel.getRoot();
-		pathes = new LinkedList<String>();
+		pathes = new LinkedList<PathDescriptor>();
 
 		unmarkNodes(root);
 
@@ -37,20 +40,27 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 			return null;
 		}
 
-		try (Scanner scanner = new Scanner(content)) {
-			if (isCancelled()) {
-				return null;
-			}
+		Matcher matcher = Patterns.LINE.matcher(content);
+		int index = 0;
 
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
+		while (matcher.find(index)) {
+			int start = matcher.start();
+			int end = matcher.end();
+
+			if (index < start) {
+				String line = content.substring(index, start);
 
 				if (line.startsWith("[/") && line.endsWith("]")) {
 					String path = line.substring(2, line.length() - 1);
+					PathDescriptor descriptor = new PathDescriptor();
+					descriptor.setPath(path);
+					descriptor.setOffset(index);
 
-					pathes.add(path);
+					pathes.add(descriptor);
 				}
 			}
+
+			index = end;
 		}
 
 		return null;
@@ -76,8 +86,8 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 			return;
 		}
 
-		for (String path : pathes) {
-			addChild(path);
+		for (PathDescriptor descriptor : pathes) {
+			addChild(descriptor);
 		}
 
 		if (root != null) {
@@ -103,10 +113,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		}
 	}
 
-	private void addChild(String line) {
+	private void addChild(PathDescriptor pathDescriptor) {
 		DefaultMutableTreeNode node = root;
 
-		try (Scanner scanner = new Scanner(line)) {
+		try (Scanner scanner = new Scanner(pathDescriptor.getPath())) {
 			scanner.useDelimiter("/");
 
 			while (scanner.hasNext()) {
@@ -135,6 +145,7 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 
 				if (!found) {
 					NodeDescriptor descriptor = new NodeDescriptor(name);
+					descriptor.setOffset(pathDescriptor.getOffset());
 					descriptor.setMark(true);
 
 					DefaultMutableTreeNode child = new DefaultMutableTreeNode();
