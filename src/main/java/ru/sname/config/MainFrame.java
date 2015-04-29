@@ -40,6 +40,7 @@ import javax.swing.KeyStroke;
 import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoManager;
@@ -119,7 +120,7 @@ public class MainFrame extends JFrame {
 
 	@Autowired
 	private LogTailer tailer;
-	
+
 	private void createComponents() {
 		createMenu();
 
@@ -306,12 +307,8 @@ public class MainFrame extends JFrame {
 								.addComponent(collectorLabel))
 				.addGroup(
 						layout.createParallelGroup(Alignment.TRAILING, true)
-								.addComponent(serverBox, MINIMAL_BOX_SIZE,
-										GroupLayout.PREFERRED_SIZE,
-										GroupLayout.PREFERRED_SIZE)
-								.addComponent(collectorBox, MINIMAL_BOX_SIZE,
-										GroupLayout.PREFERRED_SIZE,
-										GroupLayout.PREFERRED_SIZE)));
+								.addComponent(serverBox)
+								.addComponent(collectorBox)));
 
 		layout.setVerticalGroup(layout
 				.createSequentialGroup()
@@ -323,6 +320,8 @@ public class MainFrame extends JFrame {
 						layout.createBaselineGroup(false, false)
 								.addComponent(collectorLabel)
 								.addComponent(collectorBox)));
+
+		layout.linkSize(SwingConstants.HORIZONTAL, serverBox, collectorBox);
 
 		toolbar.add(connectButton);
 		toolbar.addSeparator();
