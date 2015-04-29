@@ -57,11 +57,11 @@ import ru.sname.config.listener.DocumentHighlightListener;
 import ru.sname.config.listener.FilterUndoListener;
 import ru.sname.config.listener.UpdateTreeListener;
 import ru.sname.config.model.ConfigModel;
+import ru.sname.config.service.SiuListener;
+import ru.sname.config.service.SiuService;
 
 @Component
-public class MainFrame extends JFrame {
-
-	private static final int MINIMAL_BOX_SIZE = 300;
+public class MainFrame extends JFrame implements SiuListener {
 
 	private static final long serialVersionUID = -8561388914130543345L;
 
@@ -119,7 +119,13 @@ public class MainFrame extends JFrame {
 	private ConfigModel model;
 
 	@Autowired
+	private SiuService service;
+
+	@Autowired
 	private LogTailer tailer;
+
+	JComboBox<String> serverBox;
+	JComboBox<String> collectorBox;
 
 	private void createComponents() {
 		createMenu();
@@ -284,10 +290,8 @@ public class MainFrame extends JFrame {
 		JLabel serverLabel = new JLabel("Server:");
 		JLabel collectorLabel = new JLabel("Collector:");
 
-		JComboBox<String> serverBox = new JComboBox<String>(
-				model.getServersModel());
-		JComboBox<String> collectorBox = new JComboBox<String>(
-				model.getCollectorsModel());
+		serverBox = new JComboBox<String>(model.getServersModel());
+		collectorBox = new JComboBox<String>(model.getCollectorsModel());
 		collectorBox.setEditable(true);
 
 		JPanel destinationPane = new JPanel();
@@ -376,8 +380,10 @@ public class MainFrame extends JFrame {
 		logger.info("Creating MainFrame.");
 
 		createComponents();
+		setRemoteActionsEnaled(false);
 
 		addWindowListener(exitOnClose);
+		service.addListener(this);
 
 		setTitle("Configuration editor");
 		setVisible(true);
@@ -390,10 +396,32 @@ public class MainFrame extends JFrame {
 		logger.info("Destroying MainFrame.");
 
 		removeWindowListener(exitOnClose);
+		service.removeListener(this);
 
 		dispose();
 
 		logger.info("MainFrame destroyed.");
+	}
+
+	@Override
+	public void onConnected() {
+		setRemoteActionsEnaled(true);
+	}
+
+	private void setRemoteActionsEnaled(boolean value) {
+		configurationDebugAction.setEnabled(value);
+		configurationRunAction.setEnabled(value);
+		configurationStopAction.setEnabled(value);
+		configurationLoadAction.setEnabled(value);
+		serverDisconnectAction.setEnabled(value);
+
+		serverBox.setEnabled(value);
+		collectorBox.setEnabled(value);
+	}
+
+	@Override
+	public void onDisconnected() {
+		setRemoteActionsEnaled(false);
 	}
 
 }
