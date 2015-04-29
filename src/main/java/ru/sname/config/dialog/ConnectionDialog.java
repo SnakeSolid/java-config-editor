@@ -1,6 +1,5 @@
 package ru.sname.config.dialog;
 
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -21,9 +20,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuService;
-
-import com.hp.siu.utils.ClientException;
+import ru.sname.config.worker.ConnectWorker;
 
 @Component
 @SuppressWarnings("serial")
@@ -35,11 +34,13 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 	@Autowired
 	private SiuService service;
 
+	@Autowired
+	private ConfigModel model;
+
 	private JTextField iorText;
-	private JCheckBox loginBox;
+	private JCheckBox anonymousBox;
 	private JTextField usernameText;
 	private JTextField passwordText;
-	private JLabel errorLabel;
 
 	private JButton connectButton;
 	private JButton cancelButton;
@@ -54,12 +55,9 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		JLabel passworLabel = new JLabel("Password:");
 
 		iorText = new JTextField("http://10.112.142.107:8158/", 30);
-		loginBox = new JCheckBox("Connect without security", true);
+		anonymousBox = new JCheckBox("Anonymous login", true);
 		usernameText = new JTextField(30);
 		passwordText = new JTextField(30);
-
-		errorLabel = new JLabel();
-		errorLabel.setForeground(Color.RED);
 
 		usernameText.setEditable(false);
 		passwordText.setEditable(false);
@@ -73,7 +71,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 
 		getRootPane().setDefaultButton(connectButton);
 
-		loginBox.addActionListener(this);
+		anonymousBox.addActionListener(this);
 		connectButton.addActionListener(this);
 		cancelButton.addActionListener(this);
 
@@ -95,10 +93,9 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 										layout.createParallelGroup(
 												Alignment.LEADING, false)
 												.addComponent(iorText)
-												.addComponent(loginBox)
+												.addComponent(anonymousBox)
 												.addComponent(usernameText)
 												.addComponent(passwordText)))
-				.addComponent(errorLabel, 0, GroupLayout.PREFERRED_SIZE, 450)
 				.addGroup(
 						Alignment.TRAILING,
 						layout.createSequentialGroup()
@@ -110,7 +107,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 				.addGroup(
 						layout.createBaselineGroup(true, false)
 								.addComponent(iorLabel).addComponent(iorText))
-				.addComponent(loginBox)
+				.addComponent(anonymousBox)
 				.addGroup(
 						layout.createBaselineGroup(true, false)
 								.addComponent(usernameLabel)
@@ -119,8 +116,6 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 						layout.createBaselineGroup(true, false)
 								.addComponent(passworLabel)
 								.addComponent(passwordText))
-				.addComponent(errorLabel, GroupLayout.PREFERRED_SIZE,
-						GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
 				.addGroup(
 						layout.createBaselineGroup(true, false)
 								.addComponent(connectButton)
@@ -134,34 +129,28 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		pack();
 	}
 
-	private boolean connect() {
+	private void connect() {
 		String ior = iorText.getText();
+		boolean anonymous = anonymousBox.isSelected();
 		String username = usernameText.getText();
 		String password = passwordText.getText();
 
-		try {
-			if (username.length() == 0) {
-				service.connect(ior);
-			} else {
-				service.connect(ior, username, password);
-			}
-		} catch (ClientException | IllegalArgumentException e) {
-			errorLabel.setText(e.getMessage());
-
-			pack();
-
-			return false;
-		}
-
-		return true;
+		ConnectWorker worker = new ConnectWorker();
+		worker.setStatusDocument(model.getStatusModel());
+		worker.setService(service);
+		worker.setIorUrl(ior);
+		worker.setAnonymous(anonymous);
+		worker.setUsername(username);
+		worker.setPassword(password);
+		worker.execute();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		Object source = event.getSource();
 
-		if (source == loginBox) {
-			boolean enable = loginBox.isSelected();
+		if (source == anonymousBox) {
+			boolean enable = anonymousBox.isSelected();
 
 			if (enable) {
 				usernameText.setEditable(false);
@@ -171,12 +160,10 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 				passwordText.setEditable(true);
 			}
 		} else if (source == connectButton) {
-			if (connect()) {
-				setVisible(false);
-			}
-		} else if (source == cancelButton) {
-			errorLabel.setText("");
+			connect();
 
+			setVisible(false);
+		} else if (source == cancelButton) {
 			setVisible(false);
 		}
 	}

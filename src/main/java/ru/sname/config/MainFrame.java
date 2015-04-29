@@ -208,11 +208,14 @@ public class MainFrame extends JFrame {
 						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
-		JTextArea logText = new JTextArea();
+		JTextArea logText = new JTextArea(model.getLogModel());
 		logText.setFont(sansSerifFont);
 		logText.setEditable(false);
 
-		infoPane.addTab("Log output", logText);
+		JScrollPane logScroll = new JScrollPane(logText,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		infoPane.addTab("Log output", logScroll);
 
 		JTextArea statusText = new JTextArea(model.getStatusModel());
 		statusText.setFont(sansSerifFont);
