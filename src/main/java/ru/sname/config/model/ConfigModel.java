@@ -99,6 +99,12 @@ public class ConfigModel implements SiuListener, ListDataListener {
 
 			servers.clear();
 			servers.addAll(list);
+
+			if (list.size() == 1) {
+				servers.setSelectedItem(list.iterator().next());
+			} else {
+				servers.setSelectedItem(null);
+			}
 		} catch (ClientException e) {
 			return;
 		}
