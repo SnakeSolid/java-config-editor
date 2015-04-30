@@ -1,7 +1,5 @@
 package ru.sname.config.action;
 
-import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -10,12 +8,9 @@ import javax.swing.JTree;
 import javax.swing.text.Document;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
-
-import ru.sname.config.worker.util.NodeDescriptor;
 
 @SuppressWarnings("serial")
-public class TreeGotoAction extends ActionAdapter {
+public class TreeGotoAction extends TreeActionAdapter {
 
 	private final JTree tree;
 	private final JTextPane text;
@@ -31,14 +26,12 @@ public class TreeGotoAction extends ActionAdapter {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
-		TreeSelectionModel model = tree.getSelectionModel();
-		TreePath path = model.getSelectionPath();
+		TreePath path = tree.getSelectionPath();
 		DefaultMutableTreeNode child = (DefaultMutableTreeNode) path
 				.getLastPathComponent();
-		NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
 		Document document = text.getDocument();
 
-		int offset = descriptor.getOffset();
+		int offset = getOffset(child);
 		int length = document.getLength();
 
 		if (offset > length) {
@@ -47,21 +40,6 @@ public class TreeGotoAction extends ActionAdapter {
 
 		text.setCaretPosition(offset);
 		text.requestFocusInWindow();
-
-		Rectangle rect = text.getVisibleRect();
-		int position = text.getCaretPosition();
-
-		rect.y = position * text.getHeight() / length;
-
-		if (rect.y < 0) {
-			rect.y = 0;
-		}
-
-		if (rect.y + rect.height > text.getHeight()) {
-			rect.y = text.getHeight() - rect.height;
-		}
-
-		text.scrollRectToVisible(rect);
 	}
 
 }
