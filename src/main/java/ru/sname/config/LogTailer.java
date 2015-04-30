@@ -137,7 +137,6 @@ public class LogTailer implements ListDataListener {
 
 				return;
 			}
-
 		}
 
 		TrimAppender appender = new TrimAppender(model.getLogModel());
