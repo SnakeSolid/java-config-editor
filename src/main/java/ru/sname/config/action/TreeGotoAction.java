@@ -1,5 +1,7 @@
 package ru.sname.config.action;
 
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -45,6 +47,21 @@ public class TreeGotoAction extends ActionAdapter {
 
 		text.setCaretPosition(offset);
 		text.requestFocusInWindow();
+
+		Rectangle rect = text.getVisibleRect();
+		int position = text.getCaretPosition();
+
+		rect.y = position * text.getHeight() / length;
+
+		if (rect.y < 0) {
+			rect.y = 0;
+		}
+
+		if (rect.y + rect.height > text.getHeight()) {
+			rect.y = text.getHeight() - rect.height;
+		}
+
+		text.scrollRectToVisible(rect);
 	}
 
 }
