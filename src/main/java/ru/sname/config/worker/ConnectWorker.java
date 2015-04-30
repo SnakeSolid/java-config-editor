@@ -43,7 +43,7 @@ public class ConnectWorker extends AbstractConfigWorker {
 				service.connect(ior, username, password);
 			}
 		} catch (ClientException e) {
-			append("Connection error, caused by: {}", e.getMessage());
+			append("Connection error, caused by: {0}", e.getMessage());
 
 			return null;
 		}
