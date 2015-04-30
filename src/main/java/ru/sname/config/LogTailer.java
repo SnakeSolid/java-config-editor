@@ -109,8 +109,6 @@ public class LogTailer implements ListDataListener {
 
 	@Override
 	public void contentsChanged(ListDataEvent event) {
-		// Object source = event.getSource();
-
 		String serverName = (String) model.getServersModel().getSelectedItem();
 		String collectorName = (String) model.getCollectorsModel()
 				.getSelectedItem();
@@ -132,19 +130,14 @@ public class LogTailer implements ListDataListener {
 				fileName = service.getLogFileName(serverName, collectorName);
 				fileTailer = service
 						.createByteTailer(serverName, collectorName);
+				fileOffset = 0;
+				initialized = true;
 			} catch (ClientException e) {
 				logger.warn("Error occured while getting file size", e);
 
 				return;
 			}
 
-			fileOffset = 0;
-			initialized = true;
-
-			System.out.println(initialized);
-			System.out.println(fileName);
-			System.out.println(fileTailer);
-			System.out.println(fileOffset);
 		}
 
 		TrimAppender appender = new TrimAppender(model.getLogModel());
