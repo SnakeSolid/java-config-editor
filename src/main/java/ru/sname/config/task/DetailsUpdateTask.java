@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.util.DetatilsDescriptor;
-import ru.sname.config.worker.util.UpdateDetailsRunnable;
+import ru.sname.config.util.DetatilsDescriptor;
+import ru.sname.config.util.UpdateDetailsRunnable;
 
 import com.hp.siu.utils.ClientException;
 

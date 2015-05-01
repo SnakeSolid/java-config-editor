@@ -1,4 +1,4 @@
-package ru.sname.config.worker.util;
+package ru.sname.config.util;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;

@@ -18,7 +18,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import ru.sname.config.worker.util.DetatilsDescriptor;
+import ru.sname.config.util.DetatilsDescriptor;
 
 import com.hp.siu.corba.PropertyInfo;
 import com.hp.siu.corba.PropertyList;

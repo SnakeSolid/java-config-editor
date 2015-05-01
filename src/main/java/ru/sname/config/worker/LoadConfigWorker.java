@@ -9,7 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.util.Attributes;
+import ru.sname.config.util.Attributes;
 
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ShallowEntryException;

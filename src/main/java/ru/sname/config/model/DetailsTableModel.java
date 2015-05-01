@@ -13,8 +13,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import ru.sname.config.worker.util.DetailsItem;
-import ru.sname.config.worker.util.DetatilsDescriptor;
+import ru.sname.config.util.DetailsItem;
+import ru.sname.config.util.DetatilsDescriptor;
 
 @SuppressWarnings("serial")
 @Service

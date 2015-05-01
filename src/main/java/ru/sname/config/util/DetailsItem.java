@@ -1,4 +1,4 @@
-package ru.sname.config.worker.util;
+package ru.sname.config.util;
 
 public class DetailsItem {
 

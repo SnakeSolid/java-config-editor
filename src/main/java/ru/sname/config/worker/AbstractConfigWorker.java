@@ -6,7 +6,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.text.StyledDocument;
 
-import ru.sname.config.worker.util.MessageAppender;
+import ru.sname.config.util.MessageAppender;
 
 public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 

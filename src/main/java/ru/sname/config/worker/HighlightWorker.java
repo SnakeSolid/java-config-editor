@@ -11,10 +11,10 @@ import javax.swing.text.StyledDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.sname.config.worker.util.Attributes;
-import ru.sname.config.worker.util.Patterns;
-import ru.sname.config.worker.util.Token;
-import ru.sname.config.worker.util.TokenType;
+import ru.sname.config.util.Attributes;
+import ru.sname.config.util.Patterns;
+import ru.sname.config.util.Token;
+import ru.sname.config.util.TokenType;
 
 public class HighlightWorker extends SwingWorker<Void, Void> {
 

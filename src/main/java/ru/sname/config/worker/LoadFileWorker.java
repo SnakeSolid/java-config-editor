@@ -11,7 +11,7 @@ import javax.swing.text.StyledDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ru.sname.config.worker.util.Attributes;
+import ru.sname.config.util.Attributes;
 
 public class LoadFileWorker extends SwingWorker<Void, Void> {
 

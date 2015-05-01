@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.util.TextAppender;
-import ru.sname.config.worker.util.TrimAppender;
+import ru.sname.config.util.TextAppender;
+import ru.sname.config.util.TrimAppender;
 
 import com.hp.siu.utils.ClientException;
 import com.hp.siu.utils.ClientFileNotFoundException;

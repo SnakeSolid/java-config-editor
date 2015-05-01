@@ -10,9 +10,9 @@ import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
-import ru.sname.config.worker.util.NodeDescriptor;
-import ru.sname.config.worker.util.PathDescriptor;
-import ru.sname.config.worker.util.Patterns;
+import ru.sname.config.util.NodeDescriptor;
+import ru.sname.config.util.PathDescriptor;
+import ru.sname.config.util.Patterns;
 
 public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 

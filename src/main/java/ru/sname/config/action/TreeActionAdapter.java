@@ -2,7 +2,7 @@ package ru.sname.config.action;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import ru.sname.config.worker.util.NodeDescriptor;
+import ru.sname.config.util.NodeDescriptor;
 
 @SuppressWarnings("serial")
 public abstract class TreeActionAdapter extends ActionAdapter {

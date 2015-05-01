@@ -2,7 +2,7 @@ package ru.sname.config.tree;
 
 import java.util.Scanner;
 
-import ru.sname.config.worker.util.Patterns;
+import ru.sname.config.util.Patterns;
 
 public class TreeParser {
 
