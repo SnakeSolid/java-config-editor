@@ -48,6 +48,8 @@ public class SiuService {
 
 	private Map<String, ProcessManagerClient> managers;
 	private Map<String, ManagedProcessClient> processes;
+	private Map<String, SafeFileHandlerClient> tailers;
+	private Map<String, CollectorOperationClient> collectors;
 
 	private Collection<SiuListener> listeners;
 
@@ -125,6 +127,8 @@ public class SiuService {
 	public void disconnect() {
 		processes.clear();
 		managers.clear();
+		tailers.clear();
+		collectors.clear();
 
 		context = null;
 		configManager = null;
@@ -142,6 +146,8 @@ public class SiuService {
 
 		this.managers = new HashMap<String, ProcessManagerClient>();
 		this.processes = new HashMap<String, ManagedProcessClient>();
+		this.tailers = new HashMap<String, SafeFileHandlerClient>();
+		this.collectors = new HashMap<String, CollectorOperationClient>();
 
 		this.listeners = new LinkedList<SiuListener>();
 	}
@@ -165,8 +171,6 @@ public class SiuService {
 
 	public Config getConfigTree(String serverName, String processName)
 			throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public Config getConfigTree");		
-		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 		path.append(serverName);
@@ -178,8 +182,6 @@ public class SiuService {
 	}
 
 	public List<String> getServers() throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public List<String> getServers");		
-		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 
@@ -217,8 +219,6 @@ public class SiuService {
 	}
 
 	public List<String> getCollectors(String serverName) throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public List<String> getCollectors");		
-		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 		path.append(serverName);
@@ -245,8 +245,6 @@ public class SiuService {
 
 	public void stopProcess(String serverName, String processName)
 			throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public void stopProcess");		
-		
 		if (isProcessStopped(serverName, processName)) {
 			return;
 		}
@@ -256,7 +254,8 @@ public class SiuService {
 		if (process != null) {
 			process.stopProcess();
 
-			processes.remove(process);
+			processes.remove(processName);
+			collectors.remove(processName);
 		}
 	}
 
@@ -338,8 +337,6 @@ public class SiuService {
 
 	public void cleanupProcess(String serverName, String processName)
 			throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public void cleanupProcess");		
-		
 		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process != null) {
@@ -349,8 +346,6 @@ public class SiuService {
 
 	public void startProcess(String serverName, String processName)
 			throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public void startProcess");		
-		
 		if (isProcessRunning(serverName, processName)) {
 			return;
 		}
@@ -482,8 +477,6 @@ public class SiuService {
 
 	public void updateProcessConfig(String serverName, String processName,
 			Config config) throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public void updateProcessConfig");		
-		
 		StringBuilder builder = new StringBuilder();
 		builder.append("/deployment/");
 		builder.append(serverName);
@@ -494,12 +487,16 @@ public class SiuService {
 		configManager.setConfigTree(config);
 	}
 
-	public SafeFileHandlerClient createByteTailer(String serverName,
-			String processName) throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public SafeFileHandlerClient createByteTailer");		
-		
+	public SafeFileHandlerClient createByteTailer(String serverName)
+			throws ClientException {
+		if (tailers.containsKey(serverName)) {
+			return tailers.get(serverName);
+		}
+
 		SafeFileHandlerClient handler = new SafeFileHandlerClient(serverName,
 				configManager, context);
+
+		tailers.put(serverName, handler);
 
 		return handler;
 	}
@@ -519,8 +516,6 @@ public class SiuService {
 
 	public String getLogFileName(String serverName, String processName)
 			throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public String getLogFileName");		
-		
 		String varRoot = getVarRoot(serverName);
 		StringBuilder builder = new StringBuilder();
 		builder.append(varRoot);
@@ -533,8 +528,6 @@ public class SiuService {
 
 	public void getProcessDetails(String serverName, String processName,
 			DetatilsDescriptor descriptor) throws ClientException {
-		System.err.println(Thread.currentThread().getName()); System.err.println("public void getProcessDetails");		
-		
 		if (!isProcessRunning(serverName, processName)) {
 			return;
 		}
@@ -553,8 +546,8 @@ public class SiuService {
 			descriptor.putString("Status reason", process.getStatus().reason);
 
 			if (type.equals("com.hp.siu.adminagent.procmgr.CollectorProcess")) {
-				CollectorOperationClient client = new CollectorOperationClient(
-						serverName, processName, configManager, context);
+				CollectorOperationClient client = getCollector(serverName,
+						processName);
 
 				descriptor.putLong("Memoty free", client.getFreeMem());
 				descriptor.putLong("Memoty total", client.getTotalMem());
@@ -576,6 +569,22 @@ public class SiuService {
 				}
 			}
 		}
+	}
+
+	private CollectorOperationClient getCollector(String serverName,
+			String processName) {
+		CollectorOperationClient client;
+
+		if (collectors.containsKey(processName)) {
+			client = collectors.get(processName);
+		} else {
+			client = new CollectorOperationClient(serverName, processName,
+					configManager, context);
+
+			collectors.put(processName, client);
+		}
+
+		return client;
 	}
 
 	private String statusToString(StatusType status) {

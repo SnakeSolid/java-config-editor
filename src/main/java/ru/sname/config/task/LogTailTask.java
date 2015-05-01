@@ -137,8 +137,7 @@ public class LogTailTask implements ListDataListener {
 		synchronized (lock) {
 			try {
 				fileName = service.getLogFileName(serverName, collectorName);
-				fileTailer = service
-						.createByteTailer(serverName, collectorName);
+				fileTailer = service.createByteTailer(serverName);
 				fileOffset = 0;
 				initialized = true;
 			} catch (ClientException e) {
