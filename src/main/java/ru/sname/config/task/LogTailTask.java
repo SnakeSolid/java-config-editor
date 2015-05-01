@@ -1,4 +1,4 @@
-package ru.sname.config;
+package ru.sname.config.task;
 
 import javax.annotation.PostConstruct;
 import javax.swing.SwingUtilities;
@@ -22,10 +22,10 @@ import com.hp.siu.utils.ClientFileNotFoundException;
 import com.hp.siu.utils.SafeFileHandlerClient;
 
 @Component
-public class LogTailer implements ListDataListener {
+public class LogTailTask implements ListDataListener {
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(LogTailer.class);
+			.getLogger(LogTailTask.class);
 
 	private static final int MAX_BUFFER_SIZE = 65536;
 
@@ -54,7 +54,7 @@ public class LogTailer implements ListDataListener {
 	}
 
 	@Scheduled(cron = "* * * * * *")
-	public void tail() {
+	public void execute() {
 		if (!initialized) {
 			return;
 		}
