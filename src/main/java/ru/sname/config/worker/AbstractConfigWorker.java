@@ -7,6 +7,7 @@ import javax.swing.SwingWorker;
 import javax.swing.text.StyledDocument;
 
 import ru.sname.config.util.MessageAppender;
+import ru.sname.config.util.MessageDisposer;
 
 public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 
@@ -16,7 +17,7 @@ public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 		this.statusDocument = statusDocument;
 	}
 
-	protected void append(String message, Object... params) {
+	protected void info(String message, Object... params) {
 		if (statusDocument == null) {
 			return;
 		}
@@ -24,6 +25,19 @@ public abstract class AbstractConfigWorker extends SwingWorker<Void, Void> {
 		String row = MessageFormat.format(message, params);
 		MessageAppender appender = new MessageAppender(statusDocument, row);
 		SwingUtilities.invokeLater(appender);
+	}
+
+	protected void warn(String message, Object... params) {
+		if (statusDocument == null) {
+			return;
+		}
+
+		String row = MessageFormat.format(message, params);
+		MessageAppender appender = new MessageAppender(statusDocument, row);
+		SwingUtilities.invokeLater(appender);
+
+		MessageDisposer disposer = new MessageDisposer(row);
+		SwingUtilities.invokeLater(disposer);
 	}
 
 }

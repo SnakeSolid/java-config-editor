@@ -4,12 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import javax.swing.SwingWorker;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SaveFileWorker extends SwingWorker<Void, Void> {
+public class SaveFileWorker extends AbstractConfigWorker {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(SaveFileWorker.class);
@@ -30,6 +28,7 @@ public class SaveFileWorker extends SwingWorker<Void, Void> {
 		try (FileWriter writer = new FileWriter(file)) {
 			writer.write(content);
 		} catch (IOException e) {
+			warn("Can not write file, caused by {0}", e.getMessage());
 			logger.error(e.getMessage(), e);
 		}
 

@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
-import javax.swing.SwingWorker;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import ru.sname.config.util.Attributes;
 
-public class LoadFileWorker extends SwingWorker<Void, Void> {
+public class LoadFileWorker extends AbstractConfigWorker {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LoadFileWorker.class);
@@ -48,7 +47,8 @@ public class LoadFileWorker extends SwingWorker<Void, Void> {
 				content.append(buffer, 0, len);
 			}
 		} catch (IOException e) {
-			logger.error(e.getMessage(), e);
+			warn("Can not read file content, caused by {0}", e.getMessage());
+			logger.error("Can not read file content", e);
 		}
 
 		return null;

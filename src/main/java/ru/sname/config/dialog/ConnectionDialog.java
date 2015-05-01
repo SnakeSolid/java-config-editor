@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import ru.sname.config.model.SettingsModel;
 import ru.sname.config.service.WorkerExecutor;
 
 @Component
@@ -32,6 +33,9 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 
 	@Autowired
 	private WorkerExecutor executor;
+
+	@Autowired
+	private SettingsModel settings;
 
 	private JTextField iorText;
 	private JCheckBox anonymousBox;
@@ -50,9 +54,10 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		JLabel usernameLabel = new JLabel("Username:");
 		JLabel passworLabel = new JLabel("Password:");
 
-		iorText = new JTextField("http://10.112.142.107:8158/", 30);
-		anonymousBox = new JCheckBox("Anonymous login", true);
-		usernameText = new JTextField(30);
+		iorText = new JTextField(settings.getSeverIor(), 30);
+		anonymousBox = new JCheckBox("Anonymous login",
+				settings.getServerAnonymous());
+		usernameText = new JTextField(settings.getServerUsername(), 30);
 		passwordText = new JPasswordField(30);
 
 		usernameText.setEditable(false);
@@ -130,6 +135,11 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		boolean anonymous = anonymousBox.isSelected();
 		String username = usernameText.getText();
 		char[] password = passwordText.getPassword();
+
+		settings.setSeverIor(ior);
+		settings.setServerAnonymous(anonymous);
+		settings.setServerUsername(username);
+		executor.executeSaveSettings();
 
 		if (anonymous) {
 			executor.executeConnect(ior);

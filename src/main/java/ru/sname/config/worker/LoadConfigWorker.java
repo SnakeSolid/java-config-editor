@@ -27,18 +27,18 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 	@Override
 	protected Void doInBackground() throws Exception {
 		if (serverName == null) {
-			append("Server does not chosen.");
+			warn("Server does not chosen.");
 
 			return null;
 		}
 
 		if (collectorName == null) {
-			append("Collector does not chosen.");
+			warn("Collector does not chosen.");
 
 			return null;
 		}
 
-		append("Loading configuration for {0}.", collectorName);
+		info("Loading configuration for {0}.", collectorName);
 
 		content = new StringBuilder(DEFAULT_CAPACITY);
 
@@ -47,7 +47,7 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 		try {
 			tree = service.getConfigTree(serverName, collectorName);
 		} catch (Exception e) {
-			append("Can not load configuration for {0}, caused by: {1}.",
+			warn("Can not load configuration for {0}, caused by: {1}.",
 					collectorName, e.getMessage());
 			logger.error(e.getMessage(), e);
 
@@ -56,7 +56,7 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 
 		walkTree(tree);
 
-		append("Configuration has been loaded.");
+		info("Configuration has been loaded.");
 
 		return null;
 	}

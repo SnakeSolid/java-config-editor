@@ -24,43 +24,42 @@ public class StartProcessWorker extends AbstractSuiWorker {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		append("Stopping collector {0}...", collectorName);
+		info("Stopping collector {0}...", collectorName);
 
 		try {
 			service.stopProcess(serverName, collectorName);
 		} catch (ClientException e) {
-			append("Failed to stop process {0}, caused by: {1}.",
-					collectorName, e.getMessage());
+			info("Failed to stop process {0}, caused by: {1}.", collectorName,
+					e.getMessage());
 			logger.warn(e.getMessage(), e);
 		}
 
-		append("Collector {0} has been stopped.", collectorName);
-		append("Cleaning collector {0}...", collectorName);
+		info("Collector {0} has been stopped.", collectorName);
+		info("Cleaning collector {0}...", collectorName);
 
 		try {
 			service.cleanupProcess(serverName, collectorName);
 		} catch (ClientException e) {
-			append("Failed to clearup process {0}, caused by: {1}.",
+			warn("Failed to clearup process {0}, caused by: {1}.",
 					collectorName, e.getMessage());
 			logger.warn("Can not cleanup collector", e);
 		}
 
-		append("Collector has been cleaned.");
-		append("Updating collector {0} configuration...", collectorName);
+		info("Collector has been cleaned.");
+		info("Updating collector {0} configuration...", collectorName);
 
 		ConfigNode root = TreeParser.parse(content);
 		Collection<ConfigNode> processes = findProcesses(root);
 
 		if (processes.isEmpty()) {
-			append("No one process with name {0} found in config.",
-					collectorName);
+			warn("No one process with name {0} found in config.", collectorName);
 			logger.info("No processes found in config.");
 
 			return null;
 		}
 
 		if (processes.size() > 1) {
-			append("More than one process with name {0} found in config.",
+			warn("More than one process with name {0} found in config.",
 					collectorName);
 			logger.warn("More than one processes found in config.");
 
@@ -76,27 +75,27 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		try {
 			service.updateProcessConfig(serverName, collectorName, config);
 		} catch (ClientException e) {
-			append("Can not update process {0} configuration, caused by: {1}.",
+			warn("Can not update process {0} configuration, caused by: {1}.",
 					collectorName, e.getMessage());
 			logger.warn("Can not update collector configuration.", e);
 
 			return null;
 		}
 
-		append("Configuration has been updated.");
-		append("Starting collector {0}...", collectorName);
+		info("Configuration has been updated.");
+		info("Starting collector {0}...", collectorName);
 
 		try {
 			service.startProcess(serverName, collectorName);
 		} catch (ClientException e) {
-			append("Can not start process {0}, caused by: {1}.", collectorName,
+			warn("Can not start process {0}, caused by: {1}.", collectorName,
 					e.getMessage());
 			logger.warn("Can start collector.", e);
 
 			return null;
 		}
 
-		append("Collector started successfully.");
+		info("Collector started successfully.");
 
 		return null;
 	}

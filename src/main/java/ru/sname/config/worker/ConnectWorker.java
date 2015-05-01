@@ -34,7 +34,7 @@ public class ConnectWorker extends AbstractConfigWorker {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		append("Connecting to {0}...", ior);
+		info("Connecting to {0}...", ior);
 
 		try {
 			if (anonymous) {
@@ -43,12 +43,12 @@ public class ConnectWorker extends AbstractConfigWorker {
 				service.connect(ior, username, password);
 			}
 		} catch (ClientException e) {
-			append("Connection error, caused by: {0}", e.getMessage());
+			warn("Connection error, caused by: {0}", e.getMessage());
 
 			return null;
 		}
 
-		append("Successfully connected.");
+		info("Successfully connected.");
 
 		return null;
 	}

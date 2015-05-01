@@ -30,17 +30,19 @@ public class ServerListWorker extends AbstractConfigWorker {
 
 	@Override
 	protected Void doInBackground() {
-		append("Receiving server list...");
+		info("Receiving server list...");
 
 		try {
 			servers = service.getServers();
 		} catch (ClientException e) {
+			warn("Error while receiving server list, caused by {0}",
+					e.getMessage());
 			logger.warn("Error while receiving server list", e);
 
 			return null;
 		}
 
-		append("Server list was received.");
+		info("Server list was received.");
 
 		return null;
 	}

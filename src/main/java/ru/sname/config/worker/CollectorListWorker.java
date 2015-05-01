@@ -36,22 +36,24 @@ public class CollectorListWorker extends AbstractConfigWorker {
 	@Override
 	protected Void doInBackground() {
 		if (serverName == null) {
-			append("Server must be selected.");
+			info("Server must be selected.");
 
 			return null;
 		}
 
-		append("Receiving collector list for {0}...", serverName);
+		info("Receiving collector list for {0}...", serverName);
 
 		try {
 			collectors = service.getCollectors(serverName);
 		} catch (ClientException e) {
+			warn("Error while receiving collector list, caused by: {0}",
+					e.getMessage());
 			logger.warn("Error while receiving collector list", e);
 
 			return null;
 		}
 
-		append("Collector list was received.");
+		info("Collector list was received.");
 
 		return null;
 	}

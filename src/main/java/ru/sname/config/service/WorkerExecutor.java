@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
 import ru.sname.config.model.ConfigModel;
+import ru.sname.config.model.SettingsModel;
 import ru.sname.config.worker.CollectorListWorker;
 import ru.sname.config.worker.ConnectWorker;
 import ru.sname.config.worker.DebugProcessWorker;
@@ -20,6 +21,7 @@ import ru.sname.config.worker.HighlightWorker;
 import ru.sname.config.worker.LoadConfigWorker;
 import ru.sname.config.worker.LoadFileWorker;
 import ru.sname.config.worker.SaveFileWorker;
+import ru.sname.config.worker.SaveSettingsWorker;
 import ru.sname.config.worker.ServerListWorker;
 import ru.sname.config.worker.StartProcessWorker;
 import ru.sname.config.worker.StopProcessWorker;
@@ -37,6 +39,9 @@ public class WorkerExecutor {
 
 	@Autowired
 	private SiuService service;
+
+	@Autowired
+	private SettingsModel settings;
 
 	private HighlightWorker highlightWorker;
 	private TreeBuilderWorker treeBuilderWorker;
@@ -169,6 +174,13 @@ public class WorkerExecutor {
 		treeBuilderWorker.setModel(model.getTreeModel());
 		treeBuilderWorker.setContent(getContent());
 		treeBuilderWorker.execute();
+	}
+
+	public void executeSaveSettings() {
+		SaveSettingsWorker worker = new SaveSettingsWorker();
+		worker.setStatusDocument(model.getStatusModel());
+		worker.setSettings(settings);
+		worker.execute();
 	};
 
 }

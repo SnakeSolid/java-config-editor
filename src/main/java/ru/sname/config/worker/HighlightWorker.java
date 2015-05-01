@@ -5,11 +5,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 
 import javax.swing.SwingWorker;
-import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import ru.sname.config.util.Attributes;
 import ru.sname.config.util.Patterns;
@@ -17,9 +13,6 @@ import ru.sname.config.util.Token;
 import ru.sname.config.util.TokenType;
 
 public class HighlightWorker extends SwingWorker<Void, Void> {
-
-	private static final Logger logger = LoggerFactory
-			.getLogger(HighlightWorker.class);
 
 	private StyledDocument document;
 	private String content;
@@ -92,16 +85,6 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 			}
 
 			index = end;
-		}
-	}
-
-	private String getDocumentContent(StyledDocument document) {
-		try {
-			return document.getText(0, document.getLength());
-		} catch (BadLocationException e) {
-			logger.error(e.getMessage(), e);
-
-			return null;
 		}
 	}
 

@@ -92,6 +92,10 @@ public class MainFrame extends JFrame implements SiuListener {
 	private Action applicationSaveAsAction;
 
 	@Autowired
+	@Qualifier("application_settings_action")
+	private Action applicationSettingsAction;
+
+	@Autowired
 	@Qualifier("application_exit_action")
 	private Action applicationExitAction;
 
@@ -380,6 +384,8 @@ public class MainFrame extends JFrame implements SiuListener {
 		applicationMenu.add(applicationOpenAction);
 		applicationMenu.add(applicationSaveAction);
 		applicationMenu.add(applicationSaveAsAction);
+		applicationMenu.addSeparator();
+		applicationMenu.add(applicationSettingsAction);
 		applicationMenu.addSeparator();
 		applicationMenu.add(applicationExitAction);
 
