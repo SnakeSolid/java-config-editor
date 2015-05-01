@@ -1,7 +1,6 @@
 package ru.sname.config.model;
 
 import java.io.File;
-import java.util.Collection;
 
 import javax.annotation.PostConstruct;
 import javax.swing.event.ListDataEvent;
@@ -19,8 +18,7 @@ import org.springframework.stereotype.Service;
 
 import ru.sname.config.service.SiuListener;
 import ru.sname.config.service.SiuService;
-
-import com.hp.siu.utils.ClientException;
+import ru.sname.config.service.WorkerExecutor;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -44,6 +42,9 @@ public class ConfigModel implements SiuListener, ListDataListener {
 
 	@Autowired
 	private StringBoxModel collectors;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	@PostConstruct
 	private void initialize() {
@@ -94,20 +95,8 @@ public class ConfigModel implements SiuListener, ListDataListener {
 
 	@Override
 	public void onConnected() {
-		try {
-			Collection<String> list = siuService.getServers();
-
-			servers.clear();
-			servers.addAll(list);
-
-			if (list.size() == 1) {
-				servers.setSelectedItem(list.iterator().next());
-			} else {
-				servers.setSelectedItem(null);
-			}
-		} catch (ClientException e) {
-			return;
-		}
+		servers.clear();
+		executor.executeServerList();
 	}
 
 	@Override
@@ -132,24 +121,14 @@ public class ConfigModel implements SiuListener, ListDataListener {
 		Object source = event.getSource();
 
 		if (source == servers) {
+			collectors.clear();
+
 			if (!siuService.isConnected()) {
 				return;
 			}
 
 			String serverName = (String) servers.getSelectedItem();
-
-			if (serverName == null) {
-				return;
-			}
-
-			try {
-				Collection<String> list = siuService.getCollectors(serverName);
-
-				collectors.clear();
-				collectors.addAll(list);
-			} catch (ClientException e) {
-				return;
-			}
+			executor.executeCollectorList(serverName);
 		}
 	}
 

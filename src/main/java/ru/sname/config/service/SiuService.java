@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -168,7 +169,7 @@ public class SiuService {
 		return configManager.getConfigTree(path.toString(), true);
 	}
 
-	public Collection<String> getServers() throws ClientException {
+	public List<String> getServers() throws ClientException {
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 
@@ -205,8 +206,7 @@ public class SiuService {
 		return serverNames;
 	}
 
-	public Collection<String> getCollectors(String server)
-			throws ClientException {
+	public List<String> getCollectors(String server) throws ClientException {
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 		path.append(server);
