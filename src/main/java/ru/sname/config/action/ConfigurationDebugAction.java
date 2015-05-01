@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.StringBoxModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.DebugProcessWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @SuppressWarnings("serial")
 @Component("configuration_debug_action")
@@ -22,6 +22,9 @@ public class ConfigurationDebugAction extends ActionAdapter {
 
 	@Autowired
 	private SiuService siuService;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	public ConfigurationDebugAction() {
 		setName("Debug");
@@ -52,13 +55,7 @@ public class ConfigurationDebugAction extends ActionAdapter {
 			return;
 		}
 
-		DebugProcessWorker worker = new DebugProcessWorker();
-		worker.setService(siuService);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
-		worker.setDocument(model.getConfigurationModel());
-		worker.setStatusDocument(model.getStatusModel());
-		worker.execute();
+		executor.executeDebugProcess(serverName, collectorName);
 	}
 
 }

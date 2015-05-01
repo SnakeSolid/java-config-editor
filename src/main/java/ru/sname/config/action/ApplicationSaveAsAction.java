@@ -7,13 +7,12 @@ import java.io.File;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JFileChooser;
-import javax.swing.text.StyledDocument;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
-import ru.sname.config.worker.SaveFileWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @Component("application_saveas_action")
 public class ApplicationSaveAsAction extends ActionAdapter {
@@ -22,6 +21,9 @@ public class ApplicationSaveAsAction extends ActionAdapter {
 
 	@Autowired
 	private ConfigModel model;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	@PostConstruct
 	private void initialize() {
@@ -42,9 +44,7 @@ public class ApplicationSaveAsAction extends ActionAdapter {
 			File file = chooser.getSelectedFile();
 
 			if (!file.exists() || file.canWrite()) {
-				StyledDocument document = model.getConfigurationModel();
-				SaveFileWorker worker = new SaveFileWorker(file, document);
-				worker.execute();
+				executor.executeSaveFile(file);
 			}
 
 			model.setWorkingDirectory(file.getParentFile());

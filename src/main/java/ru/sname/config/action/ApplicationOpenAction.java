@@ -7,13 +7,12 @@ import java.io.File;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JFileChooser;
-import javax.swing.text.StyledDocument;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
-import ru.sname.config.worker.LoadFileWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @Component("application_open_action")
 public class ApplicationOpenAction extends ActionAdapter {
@@ -22,6 +21,9 @@ public class ApplicationOpenAction extends ActionAdapter {
 
 	@Autowired
 	private ConfigModel model;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	@PostConstruct
 	private void initialize() {
@@ -41,9 +43,7 @@ public class ApplicationOpenAction extends ActionAdapter {
 			File file = chooser.getSelectedFile();
 
 			if (file.canRead()) {
-				StyledDocument document = model.getConfigurationModel();
-				LoadFileWorker worker = new LoadFileWorker(file, document);
-				worker.execute();
+				executor.executeLoadFile(file);
 			}
 
 			model.setWorkingDirectory(file.getParentFile());

@@ -60,7 +60,7 @@ public class StringBoxModel extends AbstractListModel<String> implements
 		selected = null;
 	}
 
-	protected void addAll(Collection<? extends String> list) {
+	private void addAll(Collection<? extends String> list) {
 		int size;
 
 		items.addAll(list);

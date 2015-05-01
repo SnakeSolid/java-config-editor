@@ -18,20 +18,24 @@ public class LoadFileWorker extends SwingWorker<Void, Void> {
 	private static final Logger logger = LoggerFactory
 			.getLogger(LoadFileWorker.class);
 
-	private final File file;
-	private final StyledDocument document;
-
+	private File file;
+	private StyledDocument document;
 	private StringBuilder content;
 
-	public LoadFileWorker(File file, StyledDocument document) {
+	public void setFile(File file) {
 		this.file = file;
+	}
+
+	public void setDocument(StyledDocument document) {
 		this.document = document;
-		this.content = new StringBuilder();
 	}
 
 	@Override
 	protected Void doInBackground() throws Exception {
+		int fileSize = (int) file.length();
 		char buffer[] = new char[4096];
+
+		content = new StringBuilder(fileSize);
 
 		try (FileReader reader = new FileReader(file)) {
 			while (true) {
@@ -52,9 +56,13 @@ public class LoadFileWorker extends SwingWorker<Void, Void> {
 
 	@Override
 	protected void done() {
+
 		try {
 			document.remove(0, document.getLength());
-			document.insertString(0, content.toString(), Attributes.DEFAULT);
+
+			if (content != null) {
+				document.insertString(0, content.toString(), Attributes.DEFAULT);
+			}
 		} catch (BadLocationException e) {
 			logger.error(e.getMessage(), e);
 		}

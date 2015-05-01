@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.StringBoxModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.StartProcessWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @SuppressWarnings("serial")
 @Component("configuration_run_action")
@@ -23,6 +23,9 @@ public class ConfigurationRunAction extends ActionAdapter {
 
 	@Autowired
 	private SiuService siuService;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	public ConfigurationRunAction() {
 		setName("Run");
@@ -53,13 +56,7 @@ public class ConfigurationRunAction extends ActionAdapter {
 			return;
 		}
 
-		StartProcessWorker worker = new StartProcessWorker();
-		worker.setService(siuService);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
-		worker.setDocument(model.getConfigurationModel());
-		worker.setStatusDocument(model.getStatusModel());
-		worker.execute();
+		executor.executeRunProcess(serverName, collectorName);
 	}
 
 }

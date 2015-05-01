@@ -1,19 +1,19 @@
 package ru.sname.config.listener;
 
-import javax.swing.SwingWorker;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.StyledDocument;
 
-import ru.sname.config.worker.HighlightWorker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import ru.sname.config.service.WorkerExecutor;
+
+@Component("document_highlight_listener")
 public class DocumentHighlightListener implements DocumentListener {
 
-	private SwingWorker<Void, Void> task;
-
-	public DocumentHighlightListener() {
-		this.task = null;
-	}
+	@Autowired
+	private WorkerExecutor executor;
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
@@ -23,25 +23,14 @@ public class DocumentHighlightListener implements DocumentListener {
 	public void insertUpdate(DocumentEvent e) {
 		StyledDocument document = (StyledDocument) e.getDocument();
 
-		startWorker(document, e.getOffset(), e.getLength());
+		executor.executeHighlight(document, e.getOffset(), e.getLength());
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		StyledDocument document = (StyledDocument) e.getDocument();
 
-		startWorker(document, e.getOffset(), e.getLength());
-	}
-
-	private void startWorker(StyledDocument document, int offset, int length) {
-		if (task != null) {
-			if (!task.isDone()) {
-				task.cancel(true);
-			}
-		}
-
-		task = new HighlightWorker(document, offset, length);
-		task.execute();
+		executor.executeHighlight(document, e.getOffset(), e.getLength());
 	}
 
 }

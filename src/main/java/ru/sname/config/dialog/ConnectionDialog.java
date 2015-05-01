@@ -20,9 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import ru.sname.config.model.ConfigModel;
-import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.ConnectWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @Component
 @SuppressWarnings("serial")
@@ -32,10 +30,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 			.getLogger(ConnectionDialog.class);
 
 	@Autowired
-	private SiuService service;
-
-	@Autowired
-	private ConfigModel model;
+	private WorkerExecutor executor;
 
 	private JTextField iorText;
 	private JCheckBox anonymousBox;
@@ -135,14 +130,11 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		String username = usernameText.getText();
 		String password = passwordText.getText();
 
-		ConnectWorker worker = new ConnectWorker();
-		worker.setStatusDocument(model.getStatusModel());
-		worker.setService(service);
-		worker.setIorUrl(ior);
-		worker.setAnonymous(anonymous);
-		worker.setUsername(username);
-		worker.setPassword(password);
-		worker.execute();
+		if (anonymous) {
+			executor.executeConnect(ior);
+		} else {
+			executor.executeConnect(ior, username, password);
+		}
 	}
 
 	@Override

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.StringBoxModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.LoadConfigWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @SuppressWarnings("serial")
 @Component("configuration_load_action")
@@ -23,6 +23,9 @@ public class ConfigurationLoadAction extends ActionAdapter {
 
 	@Autowired
 	private SiuService siuService;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	public ConfigurationLoadAction() {
 		setName("Load");
@@ -54,12 +57,6 @@ public class ConfigurationLoadAction extends ActionAdapter {
 			return;
 		}
 
-		LoadConfigWorker worker = new LoadConfigWorker();
-		worker.setService(siuService);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
-		worker.setDocument(model.getConfigurationModel());
-		worker.setStatusDocument(model.getStatusModel());
-		worker.execute();
+		executor.executeLoadConfig(serverName, collectorName);
 	}
 }

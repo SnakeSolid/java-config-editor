@@ -42,6 +42,7 @@ import javax.swing.Popup;
 import javax.swing.PopupFactory;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
+import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoManager;
@@ -56,10 +57,8 @@ import ru.sname.config.action.EditRedoAction;
 import ru.sname.config.action.EditUndoAction;
 import ru.sname.config.action.TreeGotoAction;
 import ru.sname.config.action.TreeSelectAction;
-import ru.sname.config.listener.DocumentHighlightListener;
 import ru.sname.config.listener.FilterUndoListener;
 import ru.sname.config.listener.TreePopupMenuListener;
-import ru.sname.config.listener.UpdateTreeListener;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuListener;
 import ru.sname.config.service.SiuService;
@@ -118,6 +117,14 @@ public class MainFrame extends JFrame implements SiuListener {
 	@Autowired
 	@Qualifier("server_disconnect_action")
 	private Action serverDisconnectAction;
+
+	@Autowired
+	@Qualifier("document_highlight_listener")
+	private DocumentListener documentHighlightListener;
+
+	@Autowired
+	@Qualifier("update_tree_listener")
+	private DocumentListener updateTreeListener;
 
 	@Autowired
 	private ConfigModel model;
@@ -265,8 +272,8 @@ public class MainFrame extends JFrame implements SiuListener {
 		// -------------------------
 
 		StyledDocument doc = model.getConfigurationModel();
-		doc.addDocumentListener(new DocumentHighlightListener());
-		doc.addDocumentListener(new UpdateTreeListener(model.getTreeModel()));
+		doc.addDocumentListener(documentHighlightListener);
+		doc.addDocumentListener(updateTreeListener);
 
 		// -------------------------
 

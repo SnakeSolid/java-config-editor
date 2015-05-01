@@ -21,20 +21,30 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 	private static final Logger logger = LoggerFactory
 			.getLogger(HighlightWorker.class);
 
-	private final StyledDocument document;
-	private final String content;
-
+	private StyledDocument document;
+	private String content;
 	private List<Token> tokens;
 	private int startPosition;
 	private int endPosition;
 
-	public HighlightWorker(StyledDocument document, int offset, int length) {
-		this.document = document;
-		this.content = getDocumentContent(document);
-
+	public HighlightWorker() {
 		this.tokens = new LinkedList<Token>();
-		this.startPosition = offset;
-		this.endPosition = offset + length;
+	}
+
+	public void setDocument(StyledDocument document) {
+		this.document = document;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setStartPosition(int startPosition) {
+		this.startPosition = startPosition;
+	}
+
+	public void setEndPosition(int endPosition) {
+		this.endPosition = endPosition;
 	}
 
 	private void findPosition(int regionStart, int regionEnd) {

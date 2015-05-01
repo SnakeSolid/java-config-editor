@@ -18,12 +18,13 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 
 	private DefaultTreeModel treeModel;
 	private String content;
-	private DefaultMutableTreeNode root;
+
 	private Collection<PathDescriptor> pathes;
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		root = (DefaultMutableTreeNode) treeModel.getRoot();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel
+				.getRoot();
 		pathes = new LinkedList<PathDescriptor>();
 
 		unmarkNodes(root);
@@ -44,6 +45,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		int index = 0;
 
 		while (matcher.find(index)) {
+			if (isCancelled()) {
+				return null;
+			}
+
 			int start = matcher.start();
 			int end = matcher.end();
 
@@ -86,13 +91,14 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 			return;
 		}
 
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel
+				.getRoot();
+
 		for (PathDescriptor descriptor : pathes) {
-			addChild(descriptor);
+			addChild(root, descriptor);
 		}
 
-		if (root != null) {
-			removeNodes(root);
-		}
+		removeNodes(root);
 	}
 
 	private void removeNodes(DefaultMutableTreeNode node) {
@@ -113,7 +119,8 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		}
 	}
 
-	private void addChild(PathDescriptor pathDescriptor) {
+	private void addChild(DefaultMutableTreeNode root,
+			PathDescriptor pathDescriptor) {
 		DefaultMutableTreeNode node = root;
 
 		try (Scanner scanner = new Scanner(pathDescriptor.getPath())) {

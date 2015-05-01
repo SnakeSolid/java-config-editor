@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.StringBoxModel;
 import ru.sname.config.service.SiuService;
-import ru.sname.config.worker.StopProcessWorker;
+import ru.sname.config.service.WorkerExecutor;
 
 @SuppressWarnings("serial")
 @Component("configuration_stop_action")
@@ -23,6 +23,9 @@ public class ConfigurationStopAction extends ActionAdapter {
 
 	@Autowired
 	private SiuService siuService;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	public ConfigurationStopAction() {
 		setName("Stop");
@@ -53,12 +56,7 @@ public class ConfigurationStopAction extends ActionAdapter {
 			return;
 		}
 
-		StopProcessWorker worker = new StopProcessWorker();
-		worker.setService(siuService);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
-		worker.setStatusDocument(model.getStatusModel());
-		worker.execute();
+		executor.executeStopProcess(serverName, collectorName);
 	}
 
 }

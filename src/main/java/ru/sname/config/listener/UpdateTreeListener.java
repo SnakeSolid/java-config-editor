@@ -2,20 +2,19 @@ package ru.sname.config.listener;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
-import javax.swing.tree.DefaultTreeModel;
 
-import ru.sname.config.worker.TreeBuilderWorker;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import ru.sname.config.service.WorkerExecutor;
+
+@Component("update_tree_listener")
 public class UpdateTreeListener implements DocumentListener {
 
-	private TreeBuilderWorker treeBuilder;
-	private DefaultTreeModel treeModel;
-
-	public UpdateTreeListener(DefaultTreeModel treeModel) {
-		this.treeModel = treeModel;
-	}
+	
+@Autowired
+private WorkerExecutor executor;
+	
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
@@ -23,38 +22,13 @@ public class UpdateTreeListener implements DocumentListener {
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		Document document = e.getDocument();
-
-		startTreeBuilder(document);
+		executor.executeTreeBuilder(); 
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		Document document = e.getDocument();
-
-		startTreeBuilder(document);
+		executor.executeTreeBuilder();
 	}
 
-	private void startTreeBuilder(Document document) {
-		int length = document.getLength();
-		String content;
-
-		try {
-			content = document.getText(0, length);
-		} catch (BadLocationException e) {
-			return;
-		}
-
-		if (treeBuilder != null) {
-			if (!treeBuilder.isCancelled()) {
-				treeBuilder.cancel(true);
-			}
-		}
-
-		treeBuilder = new TreeBuilderWorker();
-		treeBuilder.setModel(treeModel);
-		treeBuilder.setContent(content);
-		treeBuilder.execute();
-	}
 
 }
