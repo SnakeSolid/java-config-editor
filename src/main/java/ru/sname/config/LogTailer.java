@@ -18,6 +18,7 @@ import ru.sname.config.worker.util.TextAppender;
 import ru.sname.config.worker.util.TrimAppender;
 
 import com.hp.siu.utils.ClientException;
+import com.hp.siu.utils.ClientFileNotFoundException;
 import com.hp.siu.utils.SafeFileHandlerClient;
 
 @Component
@@ -68,6 +69,10 @@ public class LogTailer implements ListDataListener {
 
 		try {
 			fileSize = fileTailer.length(fileName);
+		} catch (ClientFileNotFoundException e) {
+			logger.debug("File {} does not found", fileName, e);
+
+			return;
 		} catch (ClientException e) {
 			logger.warn("Error occured while getting file size", e);
 
@@ -97,6 +102,10 @@ public class LogTailer implements ListDataListener {
 			data = new String(buffer, 0, readedBytes);
 
 			fileOffset += readedBytes;
+		} catch (ClientFileNotFoundException e) {
+			logger.debug("File {} does not found", fileSize, e);
+
+			return;
 		} catch (ClientException e) {
 			logger.warn("Error occured while reading file", e);
 
