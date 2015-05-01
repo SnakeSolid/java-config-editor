@@ -32,7 +32,7 @@ public class ConfigurationStopAction extends ActionAdapter {
 		setDescription("Stop selected collector.");
 		setMnemonic(KeyEvent.VK_S);
 		setAccelerator(KeyEvent.VK_F2, InputEvent.CTRL_DOWN_MASK);
-		setIcon("owl");
+		setIcon("stop");
 	}
 
 	@Override

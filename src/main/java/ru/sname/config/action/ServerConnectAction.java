@@ -22,7 +22,7 @@ public class ServerConnectAction extends ActionAdapter {
 		setMnemonic(KeyEvent.VK_C);
 		setAccelerator(KeyEvent.VK_O, InputEvent.CTRL_DOWN_MASK
 				| InputEvent.SHIFT_DOWN_MASK);
-		setIcon("snake");
+		setIcon("connect");
 	}
 
 	@Override

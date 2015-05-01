@@ -31,7 +31,7 @@ public class ConfigurationDebugAction extends ActionAdapter {
 		setDescription("Debug current confuguration as selected collector.");
 		setMnemonic(KeyEvent.VK_D);
 		setAccelerator(KeyEvent.VK_F11);
-		setIcon("bug");
+		setIcon("debug");
 	}
 
 	@Override

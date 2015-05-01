@@ -32,7 +32,7 @@ public class ConfigurationRunAction extends ActionAdapter {
 		setDescription("Run current confuguration as selected collector.");
 		setMnemonic(KeyEvent.VK_R);
 		setAccelerator(KeyEvent.VK_F11, InputEvent.CTRL_DOWN_MASK);
-		setIcon("squirrel");
+		setIcon("run");
 	}
 
 	@Override

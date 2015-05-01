@@ -33,7 +33,7 @@ public class ConfigurationLoadAction extends ActionAdapter {
 		setMnemonic(KeyEvent.VK_L);
 		setAccelerator(KeyEvent.VK_L, InputEvent.CTRL_DOWN_MASK
 				| InputEvent.SHIFT_DOWN_MASK);
-		setIcon("woodpecker");
+		setIcon("download");
 	}
 
 	@Override

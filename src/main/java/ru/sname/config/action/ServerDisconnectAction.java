@@ -22,7 +22,7 @@ public class ServerDisconnectAction extends ActionAdapter {
 		setMnemonic(KeyEvent.VK_D);
 		setAccelerator(KeyEvent.VK_D, InputEvent.CTRL_DOWN_MASK
 				| InputEvent.SHIFT_DOWN_MASK);
-		setIcon("snake");
+		setIcon("disconnect");
 	}
 
 	@Override

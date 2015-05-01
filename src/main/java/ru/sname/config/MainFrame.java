@@ -314,6 +314,12 @@ public class MainFrame extends JFrame implements SiuListener {
 		JButton stopButton = new JButton(configurationStopAction);
 		JButton loadButton = new JButton(configurationLoadAction);
 
+		connectButton.setHideActionText(true);
+		debugButton.setHideActionText(true);
+		runButton.setHideActionText(true);
+		stopButton.setHideActionText(true);
+		loadButton.setHideActionText(true);
+
 		JLabel serverLabel = new JLabel("Server:");
 		JLabel collectorLabel = new JLabel("Collector:");
 
