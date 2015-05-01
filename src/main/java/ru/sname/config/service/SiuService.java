@@ -18,17 +18,22 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import ru.sname.config.worker.util.DetatilsDescriptor;
+
 import com.hp.siu.corba.PropertyInfo;
 import com.hp.siu.corba.PropertyList;
 import com.hp.siu.corba.StatusType;
 import com.hp.siu.utils.ClientException;
+import com.hp.siu.utils.CollectorOperationClient;
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ConfigManager;
 import com.hp.siu.utils.LoginContext;
 import com.hp.siu.utils.ManagedProcessClient;
+import com.hp.siu.utils.Measurement;
 import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
 import com.hp.siu.utils.SafeFileHandlerClient;
+import com.hp.siu.utils.Stats;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
@@ -158,19 +163,23 @@ public class SiuService {
 		listeners.remove(listener);
 	}
 
-	public Config getConfigTree(String server, String collector)
+	public Config getConfigTree(String serverName, String processName)
 			throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public Config getConfigTree");		
+		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
-		path.append(server);
+		path.append(serverName);
 		path.append('/');
-		path.append(collector);
+		path.append(processName);
 		path.append('/');
 
 		return configManager.getConfigTree(path.toString(), true);
 	}
 
 	public List<String> getServers() throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public List<String> getServers");		
+		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 
@@ -207,14 +216,16 @@ public class SiuService {
 		return serverNames;
 	}
 
-	public List<String> getCollectors(String server) throws ClientException {
+	public List<String> getCollectors(String serverName) throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public List<String> getCollectors");		
+		
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
-		path.append(server);
+		path.append(serverName);
 		path.append('/');
 
 		Config node = configManager.getConfigEntry(path.toString());
-		ArrayList<String> collectorNames = new ArrayList<String>();
+		ArrayList<String> processNames = new ArrayList<String>();
 		String[] children = node.getAttributes("Processes");
 
 		for (String childPath : children) {
@@ -223,22 +234,24 @@ public class SiuService {
 			if (index != -1) {
 				String childName = childPath.substring(index + 1);
 
-				collectorNames.add(childName);
+				processNames.add(childName);
 			}
 		}
 
-		Collections.sort(collectorNames);
+		Collections.sort(processNames);
 
-		return collectorNames;
+		return processNames;
 	}
 
-	public void stopProcess(String serverName, String collectorName)
+	public void stopProcess(String serverName, String processName)
 			throws ClientException {
-		if (isProcessStopped(serverName, collectorName)) {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public void stopProcess");		
+		
+		if (isProcessStopped(serverName, processName)) {
 			return;
 		}
 
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process != null) {
 			process.stopProcess();
@@ -247,9 +260,9 @@ public class SiuService {
 		}
 	}
 
-	public boolean isProcessRunning(String serverName, String collectorName)
+	public boolean isProcessRunning(String serverName, String processName)
 			throws ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process == null) {
 			return false;
@@ -268,9 +281,9 @@ public class SiuService {
 		return false;
 	}
 
-	public boolean isProcessStopped(String serverName, String collectorName)
+	public boolean isProcessStopped(String serverName, String processName)
 			throws ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process == null) {
 			return false;
@@ -289,9 +302,9 @@ public class SiuService {
 		return false;
 	}
 
-	public boolean isProcessCrashed(String serverName, String collectorName)
+	public boolean isProcessCrashed(String serverName, String processName)
 			throws ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process == null) {
 			return false;
@@ -306,9 +319,9 @@ public class SiuService {
 		return false;
 	}
 
-	public boolean isProcessFailed(String serverName, String collectorName)
+	public boolean isProcessFailed(String serverName, String processName)
 			throws ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process == null) {
 			return false;
@@ -323,26 +336,30 @@ public class SiuService {
 		return false;
 	}
 
-	public void cleanupProcess(String serverName, String collectorName)
+	public void cleanupProcess(String serverName, String processName)
 			throws ClientException {
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		System.err.println(Thread.currentThread().getName()); System.err.println("public void cleanupProcess");		
+		
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process != null) {
 			process.cleanup();
 		}
 	}
 
-	public void startProcess(String serverName, String collectorName)
+	public void startProcess(String serverName, String processName)
 			throws ClientException {
-		if (isProcessRunning(serverName, collectorName)) {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public void startProcess");		
+		
+		if (isProcessRunning(serverName, processName)) {
 			return;
 		}
 
-		ManagedProcessClient process = getProcess(serverName, collectorName);
+		ManagedProcessClient process = getProcess(serverName, processName);
 
 		if (process != null) {
 			ArrayList<PropertyInfo> properties = getProcessProperties(
-					serverName, collectorName);
+					serverName, processName);
 			PropertyList propertyList = new PropertyList(
 					properties.toArray(new PropertyInfo[] {}));
 
@@ -351,12 +368,12 @@ public class SiuService {
 	}
 
 	private ArrayList<PropertyInfo> getProcessProperties(String serverName,
-			String collectorName) throws ClientException {
+			String processName) throws ClientException {
 		ProcessManagerClient manager = getManager(serverName);
 		PropertyList runtimeParams = manager.getRuntimeParams();
 		ArrayList<PropertyInfo> properties = new ArrayList<PropertyInfo>();
 
-		String fullName = getProcessPath(serverName, collectorName);
+		String fullName = getProcessPath(serverName, processName);
 		Config node = configManager.getConfigEntry(fullName);
 
 		if (hasEntry(node, "Properties")) {
@@ -420,30 +437,30 @@ public class SiuService {
 	}
 
 	private ManagedProcessClient getProcess(String serverName,
-			String collectorName) throws ClientException {
+			String processName) throws ClientException {
 		ManagedProcessClient process;
 
-		if (processes.containsKey(collectorName)) {
-			process = processes.get(collectorName);
+		if (processes.containsKey(processName)) {
+			process = processes.get(processName);
 		} else {
 			ProcessManagerClient manager = getManager(serverName);
 
-			process = manager.getProcessByName(collectorName);
+			process = manager.getProcessByName(processName);
 
 			if (process != null) {
-				processes.put(collectorName, process);
+				processes.put(processName, process);
 			}
 		}
 
 		return process;
 	}
 
-	private String getProcessPath(String serverName, String collectorName) {
+	private String getProcessPath(String serverName, String processName) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("/deployment/");
 		builder.append(serverName);
 		builder.append("/");
-		builder.append(collectorName);
+		builder.append(processName);
 
 		return builder.toString();
 	}
@@ -463,20 +480,24 @@ public class SiuService {
 		return manager;
 	}
 
-	public void updateProcessConfig(String serverName, String collectorName,
+	public void updateProcessConfig(String serverName, String processName,
 			Config config) throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public void updateProcessConfig");		
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("/deployment/");
 		builder.append(serverName);
 
 		config.setPathName(builder.toString());
-		config.setName(collectorName);
+		config.setName(processName);
 
 		configManager.setConfigTree(config);
 	}
 
 	public SafeFileHandlerClient createByteTailer(String serverName,
-			String collectorName) throws ClientException {
+			String processName) throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public SafeFileHandlerClient createByteTailer");		
+		
 		SafeFileHandlerClient handler = new SafeFileHandlerClient(serverName,
 				configManager, context);
 
@@ -496,16 +517,87 @@ public class SiuService {
 		return null;
 	}
 
-	public String getLogFileName(String serverName, String collectorName)
+	public String getLogFileName(String serverName, String processName)
 			throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public String getLogFileName");		
+		
 		String varRoot = getVarRoot(serverName);
 		StringBuilder builder = new StringBuilder();
 		builder.append(varRoot);
 		builder.append("/log/");
-		builder.append(collectorName);
+		builder.append(processName);
 		builder.append(".log");
 
 		return builder.toString();
+	}
+
+	public void getProcessDetails(String serverName, String processName,
+			DetatilsDescriptor descriptor) throws ClientException {
+		System.err.println(Thread.currentThread().getName()); System.err.println("public void getProcessDetails");		
+		
+		if (!isProcessRunning(serverName, processName)) {
+			return;
+		}
+
+		ManagedProcessClient process = getProcess(serverName, processName);
+
+		if (process != null) {
+			String type = process.getProcessType();
+
+			descriptor.putDate("Start time", process.getStartTime());
+			descriptor.putString("Name", process.getName());
+			descriptor.putString("Type", type);
+			descriptor.putString("Dependencies", process.getDependencies());
+			descriptor.putString("Status description",
+					statusToString(process.getStatus().status));
+			descriptor.putString("Status reason", process.getStatus().reason);
+
+			if (type.equals("com.hp.siu.adminagent.procmgr.CollectorProcess")) {
+				CollectorOperationClient client = new CollectorOperationClient(
+						serverName, processName, configManager, context);
+
+				descriptor.putLong("Memoty free", client.getFreeMem());
+				descriptor.putLong("Memoty total", client.getTotalMem());
+				descriptor.putLong("Log level", client.getLogLevel());
+
+				Stats stats = client.getStatisticsDetail();
+
+				@SuppressWarnings("unchecked")
+				Enumeration<String> measurementNames = stats
+						.getMeasurementNames();
+
+				while (measurementNames.hasMoreElements()) {
+					String measurementName = measurementNames.nextElement();
+					Measurement measurement = stats
+							.getMeasurement(measurementName);
+					long value = measurement.getValue();
+
+					descriptor.putLong(measurementName, value);
+				}
+			}
+		}
+	}
+
+	private String statusToString(StatusType status) {
+		if (status.equals(StatusType.CMDL_NORMAL)) {
+			return "Running";
+		} else if (status.equals(StatusType.CMDL_MANUAL)) {
+			return "Running";
+		} else if (status.equals(StatusType.CMDL_RESTART)) {
+			return "Running";
+		} else if (status.equals(StatusType.CMDR_NORMAL)) {
+			return "Stopped";
+		} else if (status.equals(StatusType.CMDR_MANUAL)) {
+			return "Stopped";
+		} else if (status.equals(StatusType.CONFIGURED)) {
+			return "Stopped";
+		} else if (status.equals(StatusType.CMDR_CRASH)) {
+			return "Crashed";
+		} else if (status.equals(StatusType.CMDR_LAUNCH_FAIL)) {
+			return "Failed";
+		} else {
+			return "Unknown";
+		}
 	}
 
 }

@@ -62,6 +62,7 @@ import ru.sname.config.listener.TreePopupMenuListener;
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuListener;
 import ru.sname.config.service.SiuService;
+import ru.sname.config.task.LogTailTask;
 
 @Component
 public class MainFrame extends JFrame implements SiuListener {
@@ -133,7 +134,7 @@ public class MainFrame extends JFrame implements SiuListener {
 	private SiuService service;
 
 	@Autowired
-	private LogTailer tailer;
+	private LogTailTask tailer;
 
 	JComboBox<String> serverBox;
 	JComboBox<String> collectorBox;
@@ -226,6 +227,11 @@ public class MainFrame extends JFrame implements SiuListener {
 		JTabbedPane infoPane = new JTabbedPane();
 		infoPane.addTab("Problems",
 				new JScrollPane(new JTable(model.getProblemsModel()),
+						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
+		infoPane.addTab("Details",
+				new JScrollPane(new JTable(model.getDetailsModel()),
 						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 

@@ -7,12 +7,11 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+@SuppressWarnings("serial")
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class ProblemsTableModel extends AbstractTableModel implements
 		TableModel {
-
-	private static final long serialVersionUID = -7923520463621341127L;
 
 	private static final String[] COLUMN_NAMES = new String[] { "Description",
 			"Path", "Location" };

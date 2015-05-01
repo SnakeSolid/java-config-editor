@@ -5,7 +5,6 @@ import java.io.File;
 import javax.annotation.PostConstruct;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
-import javax.swing.table.TableModel;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyledDocument;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -35,7 +34,10 @@ public class ConfigModel implements SiuListener, ListDataListener {
 	private SiuService siuService;
 
 	@Autowired
-	private TableModel problems;
+	private ProblemsTableModel problems;
+
+	@Autowired
+	private DetailsTableModel details;
 
 	@Autowired
 	private StringBoxModel servers;
@@ -81,8 +83,12 @@ public class ConfigModel implements SiuListener, ListDataListener {
 		return log;
 	}
 
-	public TableModel getProblemsModel() {
+	public ProblemsTableModel getProblemsModel() {
 		return problems;
+	}
+
+	public DetailsTableModel getDetailsModel() {
+		return details;
 	}
 
 	public StringBoxModel getServersModel() {
