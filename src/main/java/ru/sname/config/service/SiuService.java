@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import com.hp.siu.corba.PropertyInfo;
 import com.hp.siu.corba.PropertyList;
+import com.hp.siu.corba.StatusType;
 import com.hp.siu.utils.ClientException;
 import com.hp.siu.utils.Config;
 import com.hp.siu.utils.ConfigManager;
@@ -233,6 +234,10 @@ public class SiuService {
 
 	public void stopProcess(String serverName, String collectorName)
 			throws ClientException {
+		if (isProcessStopped(serverName, collectorName)) {
+			return;
+		}
+
 		ManagedProcessClient process = getProcess(serverName, collectorName);
 
 		if (process != null) {
@@ -240,6 +245,82 @@ public class SiuService {
 
 			processes.remove(process);
 		}
+	}
+
+	public boolean isProcessRunning(String serverName, String collectorName)
+			throws ClientException {
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		if (process == null) {
+			return false;
+		}
+
+		StatusType status = process.getStatus().status;
+
+		if (status.equals(StatusType.CMDL_NORMAL)) {
+			return true;
+		} else if (status.equals(StatusType.CMDL_MANUAL)) {
+			return true;
+		} else if (status.equals(StatusType.CMDL_RESTART)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isProcessStopped(String serverName, String collectorName)
+			throws ClientException {
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		if (process == null) {
+			return false;
+		}
+
+		StatusType status = process.getStatus().status;
+
+		if (status.equals(StatusType.CMDR_NORMAL)) {
+			return true;
+		} else if (status.equals(StatusType.CMDR_MANUAL)) {
+			return true;
+		} else if (status.equals(StatusType.CONFIGURED)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isProcessCrashed(String serverName, String collectorName)
+			throws ClientException {
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		if (process == null) {
+			return false;
+		}
+
+		StatusType status = process.getStatus().status;
+
+		if (status.equals(StatusType.CMDR_CRASH)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public boolean isProcessFailed(String serverName, String collectorName)
+			throws ClientException {
+		ManagedProcessClient process = getProcess(serverName, collectorName);
+
+		if (process == null) {
+			return false;
+		}
+
+		StatusType status = process.getStatus().status;
+
+		if (status.equals(StatusType.CMDR_LAUNCH_FAIL)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public void cleanupProcess(String serverName, String collectorName)
@@ -253,6 +334,10 @@ public class SiuService {
 
 	public void startProcess(String serverName, String collectorName)
 			throws ClientException {
+		if (isProcessRunning(serverName, collectorName)) {
+			return;
+		}
+
 		ManagedProcessClient process = getProcess(serverName, collectorName);
 
 		if (process != null) {

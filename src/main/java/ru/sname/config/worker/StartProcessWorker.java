@@ -29,6 +29,8 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		try {
 			service.stopProcess(serverName, collectorName);
 		} catch (ClientException e) {
+			append("Failed to stop process {0}, caused by: {1}.",
+					collectorName, e.getMessage());
 			logger.warn(e.getMessage(), e);
 		}
 
@@ -38,7 +40,8 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		try {
 			service.cleanupProcess(serverName, collectorName);
 		} catch (ClientException e) {
-			append("Can not cleanup collector, caused by: {0}.", e.getMessage());
+			append("Failed to clearup process {0}, caused by: {1}.",
+					collectorName, e.getMessage());
 			logger.warn("Can not cleanup collector", e);
 		}
 
@@ -49,14 +52,16 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		Collection<ConfigNode> processes = findProcesses(root);
 
 		if (processes.isEmpty()) {
-			append("No processes found in config.", collectorName);
+			append("No one process with name {0} found in config.",
+					collectorName);
 			logger.info("No processes found in config.");
 
 			return null;
 		}
 
 		if (processes.size() > 1) {
-			append("More than one processes found in config.", collectorName);
+			append("More than one process with name {0} found in config.",
+					collectorName);
 			logger.warn("More than one processes found in config.");
 
 			return null;
@@ -71,8 +76,8 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		try {
 			service.updateProcessConfig(serverName, collectorName, config);
 		} catch (ClientException e) {
-			append("Can not update collector configuration, caused by: {0}.",
-					e.getMessage());
+			append("Can not update process {0} configuration, caused by: {1}.",
+					collectorName, e.getMessage());
 			logger.warn("Can not update collector configuration.", e);
 
 			return null;
@@ -84,7 +89,8 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		try {
 			service.startProcess(serverName, collectorName);
 		} catch (ClientException e) {
-			append("Can not start collector, caused by: {0}.", e.getMessage());
+			append("Can not start process {0}, caused by: {1}.", collectorName,
+					e.getMessage());
 			logger.warn("Can start collector.", e);
 
 			return null;
