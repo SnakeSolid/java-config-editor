@@ -12,6 +12,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
@@ -35,7 +36,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 	private JTextField iorText;
 	private JCheckBox anonymousBox;
 	private JTextField usernameText;
-	private JTextField passwordText;
+	private JPasswordField passwordText;
 
 	private JButton connectButton;
 	private JButton cancelButton;
@@ -52,7 +53,7 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		iorText = new JTextField("http://10.112.142.107:8158/", 30);
 		anonymousBox = new JCheckBox("Anonymous login", true);
 		usernameText = new JTextField(30);
-		passwordText = new JTextField(30);
+		passwordText = new JPasswordField(30);
 
 		usernameText.setEditable(false);
 		passwordText.setEditable(false);
@@ -128,12 +129,14 @@ public class ConnectionDialog extends JDialog implements ActionListener {
 		String ior = iorText.getText();
 		boolean anonymous = anonymousBox.isSelected();
 		String username = usernameText.getText();
-		String password = passwordText.getText();
+		char[] password = passwordText.getPassword();
 
 		if (anonymous) {
 			executor.executeConnect(ior);
 		} else {
-			executor.executeConnect(ior, username, password);
+			String passwordString = new String(password);
+
+			executor.executeConnect(ior, username, passwordString);
 		}
 	}
 
