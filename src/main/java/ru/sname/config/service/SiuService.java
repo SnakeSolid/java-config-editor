@@ -64,7 +64,7 @@ public class SiuService {
 		configManager = new ConfigManager(iorUrl, context);
 
 		// Hack to establish connection
-		configManager.getConfigTree("/");
+		configManager.getConfigEntry("/");
 
 		fireConnected();
 	}
@@ -110,7 +110,7 @@ public class SiuService {
 		configManager = new ConfigManager(iorUrl, context);
 
 		// Hack to establish connection
-		configManager.getConfigTree("/");
+		configManager.getConfigEntry("/");
 
 		fireConnected();
 	}
@@ -172,7 +172,7 @@ public class SiuService {
 		StringBuilder path = new StringBuilder();
 		path.append("/deployment/");
 
-		Config node = configManager.getConfigTree(path.toString());
+		Config node = configManager.getConfigEntry(path.toString());
 		ArrayList<String> serverNames = new ArrayList<String>();
 
 		@SuppressWarnings("unchecked")
@@ -180,8 +180,24 @@ public class SiuService {
 
 		while (children.hasMoreElements()) {
 			String childName = children.nextElement();
+			StringBuilder childPath = new StringBuilder();
+			childPath.append("/deployment/");
+			childPath.append(childName);
 
-			serverNames.add(childName);
+			Config child = configManager.getConfigEntry(childPath.toString());
+
+			@SuppressWarnings("unchecked")
+			Enumeration<String> attributes = child.getAttributeNames();
+
+			while (attributes.hasMoreElements()) {
+				String attributeName = attributes.nextElement();
+
+				if (attributeName.equals("Processes")) {
+					serverNames.add(childName);
+
+					break;
+				}
+			}
 		}
 
 		Collections.sort(serverNames);
@@ -196,16 +212,18 @@ public class SiuService {
 		path.append(server);
 		path.append('/');
 
-		Config node = configManager.getConfigTree(path.toString());
+		Config node = configManager.getConfigEntry(path.toString());
 		ArrayList<String> collectorNames = new ArrayList<String>();
+		String[] children = node.getAttributes("Processes");
 
-		@SuppressWarnings("unchecked")
-		Enumeration<String> children = node.getConfigNames();
+		for (String childPath : children) {
+			int index = childPath.lastIndexOf('/');
 
-		while (children.hasMoreElements()) {
-			String childName = children.nextElement();
+			if (index != -1) {
+				String childName = childPath.substring(index + 1);
 
-			collectorNames.add(childName);
+				collectorNames.add(childName);
+			}
 		}
 
 		Collections.sort(collectorNames);
