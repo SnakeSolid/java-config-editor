@@ -136,6 +136,10 @@ public class MainFrame extends JFrame implements SiuListener {
 	private DocumentListener updateTreeListener;
 
 	@Autowired
+	@Qualifier("check_syntax_listener")
+	private DocumentListener checkSyntaxListener;
+
+	@Autowired
 	private ConfigModel model;
 
 	@Autowired
@@ -290,6 +294,7 @@ public class MainFrame extends JFrame implements SiuListener {
 		StyledDocument doc = model.getConfigurationModel();
 		doc.addDocumentListener(documentHighlightListener);
 		doc.addDocumentListener(updateTreeListener);
+		doc.addDocumentListener(checkSyntaxListener);
 
 		// -------------------------
 

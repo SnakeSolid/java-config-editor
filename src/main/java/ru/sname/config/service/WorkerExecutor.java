@@ -16,6 +16,7 @@ import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.SettingsModel;
 import ru.sname.config.task.LogTailHandler;
 import ru.sname.config.worker.ByteTailerWorker;
+import ru.sname.config.worker.CheckSyntaxWorker;
 import ru.sname.config.worker.CollectorListWorker;
 import ru.sname.config.worker.ConnectWorker;
 import ru.sname.config.worker.DebugProcessWorker;
@@ -45,8 +46,12 @@ public class WorkerExecutor {
 	@Autowired
 	private SettingsModel settings;
 
+	@Autowired
+	private SyntaxService syntax;
+
 	private HighlightWorker highlightWorker;
 	private TreeBuilderWorker treeBuilderWorker;
+	private CheckSyntaxWorker checkSyntaxWorker;
 
 	public void executeLoadConfig(String serverName, String processName) {
 		LoadConfigWorker worker = new LoadConfigWorker();
@@ -192,6 +197,21 @@ public class WorkerExecutor {
 		worker.setServerName(serverName);
 		worker.setHandler(handler);
 		worker.execute();
+	}
+
+	public void executeCheckSyntax() {
+		if (checkSyntaxWorker != null) {
+			if (!checkSyntaxWorker.isDone()) {
+				checkSyntaxWorker.cancel(true);
+			}
+		}
+
+		checkSyntaxWorker = new CheckSyntaxWorker();
+		checkSyntaxWorker.setStatusDocument(model.getStatusModel());
+		checkSyntaxWorker.setProblems(model.getProblemsModel());
+		checkSyntaxWorker.setSyntax(syntax);
+		checkSyntaxWorker.setContent(getContent());
+		checkSyntaxWorker.execute();
 	};
 
 }

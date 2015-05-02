@@ -1,26 +1,34 @@
 package ru.sname.config.tree;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Scanner;
 
 import ru.sname.config.util.Patterns;
 
 public class TreeParser {
 
-	private final String content;
+	private final InputStream stream;
 
-	public TreeParser(String content) {
-		this.content = content;
+	public TreeParser(InputStream stream) {
+		this.stream = stream;
 	}
 
 	public static ConfigNode parse(String content) {
-		return new TreeParser(content).parse();
+		InputStream stream = new ByteArrayInputStream(content.getBytes());
+
+		return new TreeParser(stream).parse();
+	}
+
+	public static ConfigNode parse(InputStream stream) {
+		return new TreeParser(stream).parse();
 	}
 
 	private ConfigNode parse() {
 		ConfigNode root = new ConfigNode("");
 		ConfigNode node = root;
 
-		try (Scanner scanner = new Scanner(content)) {
+		try (Scanner scanner = new Scanner(stream)) {
 			scanner.useDelimiter(Patterns.LINE);
 
 			while (scanner.hasNext()) {

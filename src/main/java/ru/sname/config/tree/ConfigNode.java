@@ -140,4 +140,8 @@ public class ConfigNode {
 		return attrList;
 	}
 
+	public String getValue(String attribute) {
+		return attributes.get(attribute).iterator().next();
+	}
+
 }

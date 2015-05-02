@@ -1,11 +1,18 @@
 package ru.sname.config.model;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableModel;
 
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+
+import ru.sname.config.syntax.error.SyntaxError;
+import ru.sname.config.util.ProblemItem;
 
 @SuppressWarnings("serial")
 @Service
@@ -17,6 +24,12 @@ public class ProblemsTableModel extends AbstractTableModel implements
 			"Path", "Location" };
 	private static final Class<?>[] COLUMN_TYPES = new Class<?>[] {
 			String.class, String.class, String.class };
+
+	private final List<ProblemItem> items;
+
+	public ProblemsTableModel() {
+		this.items = new ArrayList<ProblemItem>();
+	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
@@ -35,23 +48,56 @@ public class ProblemsTableModel extends AbstractTableModel implements
 
 	@Override
 	public int getRowCount() {
-		return 0;
+		return items.size();
 	}
 
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
+		if (columnIndex == 0) {
+			return items.get(rowIndex).getDescription();
+		} else if (columnIndex == 1) {
+			return items.get(rowIndex).getPath();
+		} else if (columnIndex == 2) {
+			return items.get(rowIndex).getLocation();
+		}
+
 		return null;
 	}
 
-	@Override
-	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		return false;
+	public void setDetails(Collection<SyntaxError> errors) {
+		int oldCount = items.size();
+
+		items.clear();
+
+		for (SyntaxError error : errors) {
+			ProblemItem item = new ProblemItem();
+			item.setDescription(error.toString());
+			item.setPath(error.getPath());
+			item.setLocation(error.getLocation());
+
+			items.add(item);
+		}
+
+		int newCount = items.size();
+
+		fireRowsChanged(oldCount, newCount);
 	}
 
-	@Override
-	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
+	private void fireRowsChanged(int oldCount, int newCount) {
+		if (oldCount == 0 && newCount == 0) {
+		} else if (oldCount == 0 && newCount > 0) {
+			fireTableRowsInserted(0, newCount - 1);
+		} else if (oldCount > 0 && newCount == 0) {
+			fireTableRowsDeleted(0, oldCount - 1);
+		} else if (oldCount > newCount) {
+			fireTableRowsUpdated(0, newCount - 1);
+			fireTableRowsDeleted(newCount, oldCount - 1);
+		} else if (oldCount == newCount) {
+			fireTableRowsUpdated(0, newCount - 1);
+		} else if (oldCount < newCount) {
+			fireTableRowsUpdated(0, oldCount - 1);
+			fireTableRowsInserted(oldCount, newCount - 1);
+		}
 	}
 
 }
