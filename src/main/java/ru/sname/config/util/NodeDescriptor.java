@@ -3,7 +3,8 @@ package ru.sname.config.util;
 public class NodeDescriptor {
 
 	private String name;
-	private int offset;
+	private int startsFrom;
+	private int endsWith;
 	private boolean mark;
 
 	public NodeDescriptor(String name) {
@@ -14,20 +15,28 @@ public class NodeDescriptor {
 		return name;
 	}
 
-	public void setName(String name) {
-		this.name = name;
+	public int getStartsFrom() {
+		return startsFrom;
 	}
 
-	public int getOffset() {
-		return offset;
-	}
-
-	public void setOffset(int offset) {
-		this.offset = offset;
+	public int getEndsWith() {
+		return endsWith;
 	}
 
 	public boolean isMark() {
 		return mark;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setStartsFrom(int startsFrom) {
+		this.startsFrom = startsFrom;
+	}
+
+	public void setEndsWith(int endsWith) {
+		this.endsWith = endsWith;
 	}
 
 	public void setMark(boolean mark) {

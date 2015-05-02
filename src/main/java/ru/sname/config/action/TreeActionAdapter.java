@@ -7,7 +7,7 @@ import ru.sname.config.util.NodeDescriptor;
 @SuppressWarnings("serial")
 public abstract class TreeActionAdapter extends ActionAdapter {
 
-	protected int getOffset(DefaultMutableTreeNode node) {
+	protected int getStartsFrom(DefaultMutableTreeNode node) {
 		if (node == null) {
 			return 0;
 		}
@@ -18,7 +18,21 @@ public abstract class TreeActionAdapter extends ActionAdapter {
 			return 0;
 		}
 
-		return descriptor.getOffset();
+		return descriptor.getStartsFrom();
+	}
+
+	protected int getEndsWith(DefaultMutableTreeNode node) {
+		if (node == null) {
+			return 0;
+		}
+
+		NodeDescriptor descriptor = (NodeDescriptor) node.getUserObject();
+
+		if (descriptor == null) {
+			return 0;
+		}
+
+		return descriptor.getEndsWith();
 	}
 
 	protected int getSelectionEnd(DefaultMutableTreeNode node,
@@ -36,7 +50,7 @@ public abstract class TreeActionAdapter extends ActionAdapter {
 		boolean found = false;
 
 		while (child != null) {
-			int childOffset = getOffset(child);
+			int childOffset = getStartsFrom(child);
 
 			if (childOffset > selectionStart && childOffset < selectionEnd) {
 				selectionEnd = childOffset;

@@ -36,14 +36,14 @@ public class TreeSelectAction extends TreeActionAdapter {
 				.getLastPathComponent();
 		Document document = text.getDocument();
 
-		int selectionStart = getOffset(node);
+		int selectionStart = getStartsFrom(node);
 		int length = document.getLength();
 
 		if (selectionStart > length) {
 			selectionStart = length;
 		}
 
-		int selectionEnd = getSelectionEnd(node, selectionStart, length);
+		int selectionEnd = getSelectionEnd(node, getEndsWith(node), length);
 
 		text.setSelectionStart(selectionStart);
 		text.setSelectionEnd(selectionEnd);

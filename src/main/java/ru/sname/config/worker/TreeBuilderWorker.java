@@ -78,7 +78,6 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		while (it.hasMoreElements()) {
 			DefaultMutableTreeNode child = it.nextElement();
 			NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
-
 			descriptor.setMark(false);
 
 			unmarkNodes(child);
@@ -140,10 +139,24 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 					String nodeName = descriptor.getName();
 
 					if (name.equals(nodeName)) {
-						descriptor.setMark(true);
+						int offset = pathDescriptor.getOffset();
+
+						if (descriptor.isMark()) {
+							if (offset < descriptor.getStartsFrom()) {
+								descriptor.setStartsFrom(offset);
+							}
+
+							if (descriptor.getEndsWith() < offset) {
+								descriptor.setEndsWith(offset);
+							}
+						} else {
+							descriptor.setStartsFrom(offset);
+							descriptor.setEndsWith(offset);
+
+							descriptor.setMark(true);
+						}
 
 						node = child;
-
 						found = true;
 
 						break;
@@ -151,8 +164,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 				}
 
 				if (!found) {
+					int offset = pathDescriptor.getOffset();
 					NodeDescriptor descriptor = new NodeDescriptor(name);
-					descriptor.setOffset(pathDescriptor.getOffset());
+					descriptor.setStartsFrom(offset);
+					descriptor.setEndsWith(offset);
 					descriptor.setMark(true);
 
 					DefaultMutableTreeNode child = new DefaultMutableTreeNode();

@@ -31,7 +31,7 @@ public class TreeGotoAction extends TreeActionAdapter {
 				.getLastPathComponent();
 		Document document = text.getDocument();
 
-		int offset = getOffset(child);
+		int offset = getStartsFrom(child);
 		int length = document.getLength();
 
 		if (offset > length) {
