@@ -30,14 +30,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		unmarkNodes(root);
 
 		if (content == null) {
-			root = null;
-
 			return null;
 		}
 
 		if (content.length() == 0) {
-			root = null;
-
 			return null;
 		}
 
