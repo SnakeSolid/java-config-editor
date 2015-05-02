@@ -1,5 +1,6 @@
 package ru.sname.config.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -72,9 +73,6 @@ public class SiuService {
 
 		configManager = new ConfigManager(iorUrl, context);
 
-		// Hack to establish connection
-		configManager.getConfigEntry("/");
-
 		fireConnected();
 	}
 
@@ -113,13 +111,18 @@ public class SiuService {
 		info.setIORURL(iorUrl);
 		info.setVarRoot(temporaryDirectory);
 
+		// Hack, create temporary folder for user store
+		File tepmorary = new File(temporaryDirectory);
+		File tepmStore = new File(tepmorary, "tmp");
+
+		if (!tepmStore.exists()) {
+			tepmStore.mkdir();
+		}
+
 		context = new LoginContext(iorUrl);
 		context.init(username, password);
 
 		configManager = new ConfigManager(iorUrl, context);
-
-		// Hack to establish connection
-		configManager.getConfigEntry("/");
 
 		fireConnected();
 	}
