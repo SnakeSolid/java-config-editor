@@ -30,7 +30,7 @@ public class DebugProcessWorker extends AbstractSuiWorker {
 		} catch (ClientException e) {
 			info("Failed to stop process {0}, caused by: {1}.", collectorName,
 					e.getMessage());
-			logger.warn(e.getMessage(), e);
+			logger.warn("Failed to stop process", e);
 		}
 
 		info("Collector {0} has been stopped.", collectorName);

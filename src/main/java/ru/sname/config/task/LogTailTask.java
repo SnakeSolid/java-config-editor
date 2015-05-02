@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.service.SiuService;
+import ru.sname.config.service.WorkerExecutor;
 import ru.sname.config.util.TextAppender;
 import ru.sname.config.util.TrimAppender;
 
@@ -22,7 +23,7 @@ import com.hp.siu.utils.ClientFileNotFoundException;
 import com.hp.siu.utils.SafeFileHandlerClient;
 
 @Component
-public class LogTailTask implements ListDataListener {
+public class LogTailTask implements ListDataListener, LogTailHandler {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(LogTailTask.class);
@@ -34,6 +35,9 @@ public class LogTailTask implements ListDataListener {
 
 	@Autowired
 	private SiuService service;
+
+	@Autowired
+	private WorkerExecutor executor;
 
 	private volatile boolean initialized;
 	private volatile String fileName;
@@ -118,28 +122,28 @@ public class LogTailTask implements ListDataListener {
 
 	@Override
 	public void contentsChanged(ListDataEvent event) {
+		synchronized (lock) {
+			initialized = false;
+		}
+
 		String serverName = (String) model.getServersModel().getSelectedItem();
 		String collectorName = (String) model.getCollectorsModel()
 				.getSelectedItem();
 
 		if (serverName == null) {
-			initialized = false;
-
 			return;
 		}
 
 		if (collectorName == null) {
-			initialized = false;
-
 			return;
 		}
 
 		synchronized (lock) {
 			try {
+				executor.executeByteTailer(serverName, this);
+
 				fileName = service.getLogFileName(serverName, collectorName);
-				fileTailer = service.createByteTailer(serverName);
 				fileOffset = 0;
-				initialized = true;
 			} catch (ClientException e) {
 				logger.warn("Error occured while getting file size", e);
 
@@ -157,6 +161,15 @@ public class LogTailTask implements ListDataListener {
 
 	@Override
 	public void intervalRemoved(ListDataEvent event) {
+	}
+
+	@Override
+	public void byteTailerCreated(String serverName,
+			SafeFileHandlerClient fileTailer) {
+		synchronized (lock) {
+			this.fileTailer = fileTailer;
+			this.initialized = true;
+		}
 	}
 
 }

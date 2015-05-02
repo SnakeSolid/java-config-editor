@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import ru.sname.config.model.ConfigModel;
 import ru.sname.config.model.SettingsModel;
+import ru.sname.config.task.LogTailHandler;
+import ru.sname.config.worker.ByteTailerWorker;
 import ru.sname.config.worker.CollectorListWorker;
 import ru.sname.config.worker.ConnectWorker;
 import ru.sname.config.worker.DebugProcessWorker;
@@ -180,6 +182,15 @@ public class WorkerExecutor {
 		SaveSettingsWorker worker = new SaveSettingsWorker();
 		worker.setStatusDocument(model.getStatusModel());
 		worker.setSettings(settings);
+		worker.execute();
+	}
+
+	public void executeByteTailer(String serverName, LogTailHandler handler) {
+		ByteTailerWorker worker = new ByteTailerWorker();
+		worker.setStatusDocument(model.getStatusModel());
+		worker.setService(service);
+		worker.setServerName(serverName);
+		worker.setHandler(handler);
 		worker.execute();
 	};
 
