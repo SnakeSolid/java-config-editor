@@ -12,19 +12,19 @@ public class StopProcessWorker extends AbstractSuiWorker {
 
 	@Override
 	protected Void doInBackground() {
-		info("Stopping process {0}...", collectorName);
+		info("Stopping process {0}...", processName);
 
 		try {
-			service.stopProcess(serverName, collectorName);
+			service.stopProcess(serverName, processName);
 		} catch (ClientException e) {
-			warn("Failed to stop process {0}, caused by: {1}.", collectorName,
+			warn("Failed to stop process {0}, caused by: {1}.", processName,
 					e.getMessage());
 			logger.warn(e.getMessage(), e);
 
 			return null;
 		}
 
-		info("Process {0} has been stopped.", collectorName);
+		info("Process {0} has been stopped.", processName);
 
 		return null;
 	}

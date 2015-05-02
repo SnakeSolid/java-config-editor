@@ -24,35 +24,35 @@ public class StartProcessWorker extends AbstractSuiWorker {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		info("Stopping collector {0}...", collectorName);
+		info("Stopping process {0}...", processName);
 
 		try {
-			service.stopProcess(serverName, collectorName);
+			service.stopProcess(serverName, processName);
 		} catch (ClientException e) {
-			info("Failed to stop process {0}, caused by: {1}.", collectorName,
+			info("Failed to stop process {0}, caused by: {1}.", processName,
 					e.getMessage());
 			logger.warn(e.getMessage(), e);
 		}
 
-		info("Collector {0} has been stopped.", collectorName);
-		info("Cleaning collector {0}...", collectorName);
+		info("Process {0} has been stopped.", processName);
+		info("Cleaning process {0}...", processName);
 
 		try {
-			service.cleanupProcess(serverName, collectorName);
+			service.cleanupProcess(serverName, processName);
 		} catch (ClientException e) {
-			warn("Failed to clearup process {0}, caused by: {1}.",
-					collectorName, e.getMessage());
-			logger.warn("Can not cleanup collector", e);
+			warn("Failed to clearup process {0}, caused by: {1}.", processName,
+					e.getMessage());
+			logger.warn("Can not cleanup process", e);
 		}
 
-		info("Collector has been cleaned.");
-		info("Updating collector {0} configuration...", collectorName);
+		info("Process has been cleaned.");
+		info("Updating process {0} configuration...", processName);
 
 		ConfigNode root = TreeParser.parse(content);
 		Collection<ConfigNode> processes = findProcesses(root);
 
 		if (processes.isEmpty()) {
-			warn("No one process with name {0} found in config.", collectorName);
+			warn("No one process with name {0} found in config.", processName);
 			logger.info("No processes found in config.");
 
 			return null;
@@ -60,7 +60,7 @@ public class StartProcessWorker extends AbstractSuiWorker {
 
 		if (processes.size() > 1) {
 			warn("More than one process with name {0} found in config.",
-					collectorName);
+					processName);
 			logger.warn("More than one processes found in config.");
 
 			return null;
@@ -73,29 +73,29 @@ public class StartProcessWorker extends AbstractSuiWorker {
 		Config config = buildConfig(source);
 
 		try {
-			service.updateProcessConfig(serverName, collectorName, config);
+			service.updateProcessConfig(serverName, processName, config);
 		} catch (ClientException e) {
 			warn("Can not update process {0} configuration, caused by: {1}.",
-					collectorName, e.getMessage());
-			logger.warn("Can not update collector configuration.", e);
+					processName, e.getMessage());
+			logger.warn("Can not update process configuration.", e);
 
 			return null;
 		}
 
 		info("Configuration has been updated.");
-		info("Starting collector {0}...", collectorName);
+		info("Starting process {0}...", processName);
 
 		try {
-			service.startProcess(serverName, collectorName);
+			service.startProcess(serverName, processName);
 		} catch (ClientException e) {
-			warn("Can not start process {0}, caused by: {1}.", collectorName,
+			warn("Can not start process {0}, caused by: {1}.", processName,
 					e.getMessage());
-			logger.warn("Can start collector.", e);
+			logger.warn("Can start process.", e);
 
 			return null;
 		}
 
-		info("Collector started successfully.");
+		info("Process started successfully.");
 
 		return null;
 	}

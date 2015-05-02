@@ -32,23 +32,23 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 			return null;
 		}
 
-		if (collectorName == null) {
-			warn("Collector does not chosen.");
+		if (processName == null) {
+			warn("Process does not chosen.");
 
 			return null;
 		}
 
-		info("Loading configuration for {0}.", collectorName);
+		info("Loading configuration for {0}.", processName);
 
 		content = new StringBuilder(DEFAULT_CAPACITY);
 
 		Config tree;
 
 		try {
-			tree = service.getConfigTree(serverName, collectorName);
+			tree = service.getConfigTree(serverName, processName);
 		} catch (Exception e) {
 			warn("Can not load configuration for {0}, caused by: {1}.",
-					collectorName, e.getMessage());
+					processName, e.getMessage());
 			logger.error(e.getMessage(), e);
 
 			return null;

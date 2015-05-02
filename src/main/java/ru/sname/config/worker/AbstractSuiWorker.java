@@ -26,7 +26,7 @@ public abstract class AbstractSuiWorker extends AbstractConfigWorker {
 
 	protected SiuService service;
 	protected String serverName;
-	protected String collectorName;
+	protected String processName;
 
 	protected Collection<ConfigNode> findProcesses(ConfigNode root) {
 		Collection<ConfigNode> processes = new LinkedList<ConfigNode>();
@@ -77,12 +77,12 @@ public abstract class AbstractSuiWorker extends AbstractConfigWorker {
 		this.service = service;
 	}
 
-	public void setServer(String serverName) {
+	public void setServerName(String serverName) {
 		this.serverName = serverName;
 	}
 
-	public void setCollector(String collectorName) {
-		this.collectorName = collectorName;
+	public void setProcessName(String processName) {
+		this.processName = processName;
 	}
 
 }

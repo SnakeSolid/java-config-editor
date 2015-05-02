@@ -48,11 +48,11 @@ public class WorkerExecutor {
 	private HighlightWorker highlightWorker;
 	private TreeBuilderWorker treeBuilderWorker;
 
-	public void executeLoadConfig(String serverName, String collectorName) {
+	public void executeLoadConfig(String serverName, String processName) {
 		LoadConfigWorker worker = new LoadConfigWorker();
 		worker.setService(service);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
+		worker.setServerName(serverName);
+		worker.setProcessName(processName);
 		worker.setDocument(model.getConfigurationModel());
 		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
@@ -75,31 +75,31 @@ public class WorkerExecutor {
 		worker.execute();
 	}
 
-	public void executeDebugProcess(String serverName, String collectorName) {
+	public void executeDebugProcess(String serverName, String processName) {
 		DebugProcessWorker worker = new DebugProcessWorker();
 		worker.setService(service);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
+		worker.setServerName(serverName);
+		worker.setProcessName(processName);
 		worker.setDocument(model.getConfigurationModel());
 		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
 	}
 
-	public void executeRunProcess(String serverName, String collectorName) {
+	public void executeRunProcess(String serverName, String processName) {
 		StartProcessWorker worker = new StartProcessWorker();
 		worker.setService(service);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
+		worker.setServerName(serverName);
+		worker.setProcessName(processName);
 		worker.setDocument(model.getConfigurationModel());
 		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
 	}
 
-	public void executeStopProcess(String serverName, String collectorName) {
+	public void executeStopProcess(String serverName, String processName) {
 		StopProcessWorker worker = new StopProcessWorker();
 		worker.setService(service);
-		worker.setServer(serverName);
-		worker.setCollector(collectorName);
+		worker.setServerName(serverName);
+		worker.setProcessName(processName);
 		worker.setStatusDocument(model.getStatusModel());
 		worker.execute();
 	}
