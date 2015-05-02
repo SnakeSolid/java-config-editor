@@ -83,13 +83,13 @@ public class DetailsUpdateTask implements ListDataListener {
 		String processName = (String) model.getCollectorsModel()
 				.getSelectedItem();
 
-		if (serverName == null) {
+		if (serverName == null || serverName.isEmpty()) {
 			initialized = false;
 
 			return;
 		}
 
-		if (processName == null) {
+		if (processName == null || processName.isEmpty()) {
 			initialized = false;
 
 			return;
