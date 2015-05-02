@@ -130,7 +130,7 @@ public class SettingsDialog extends JDialog implements ActionListener {
 
 	@PostConstruct
 	private void initialize() {
-		logger.info("Creating ConnectionDialog.");
+		logger.info("Creating SettingsDialog.");
 
 		createComponents();
 
@@ -140,16 +140,16 @@ public class SettingsDialog extends JDialog implements ActionListener {
 		setResizable(false);
 		setModal(true);
 
-		logger.info("ConnectionDialog created.");
+		logger.info("SettingsDialog created.");
 	}
 
 	@PreDestroy
 	private void deinitialize() {
-		logger.info("Destroying ConnectionDialog.");
+		logger.info("Destroying SettingsDialog.");
 
 		dispose();
 
-		logger.info("ConnectionDialog destroyed.");
+		logger.info("SettingsDialog destroyed.");
 	}
 
 }
