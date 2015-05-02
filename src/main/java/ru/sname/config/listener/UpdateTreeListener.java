@@ -11,10 +11,8 @@ import ru.sname.config.service.WorkerExecutor;
 @Component("update_tree_listener")
 public class UpdateTreeListener implements DocumentListener {
 
-	
-@Autowired
-private WorkerExecutor executor;
-	
+	@Autowired
+	private WorkerExecutor executor;
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
@@ -22,13 +20,12 @@ private WorkerExecutor executor;
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		executor.executeTreeBuilder(); 
+		executor.executeTreeBuilder();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		executor.executeTreeBuilder();
 	}
-
 
 }
