@@ -53,6 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import ru.sname.config.action.EditFindAction;
 import ru.sname.config.action.EditRedoAction;
 import ru.sname.config.action.EditUndoAction;
 import ru.sname.config.action.TreeGotoAction;
@@ -124,6 +125,9 @@ public class MainFrame extends JFrame implements SiuListener {
 	private Action serverDisconnectAction;
 
 	@Autowired
+	private EditFindAction editFindAction;
+
+	@Autowired
 	@Qualifier("document_highlight_listener")
 	private DocumentListener documentHighlightListener;
 
@@ -174,6 +178,8 @@ public class MainFrame extends JFrame implements SiuListener {
 		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
 				InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK),
 				new EditRedoAction(undoManager));
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F,
+				InputEvent.CTRL_DOWN_MASK), editFindAction);
 
 		// -------------------------
 
@@ -298,6 +304,10 @@ public class MainFrame extends JFrame implements SiuListener {
 		add(treeSplitPane, BorderLayout.CENTER);
 
 		pack();
+
+		// -------------------------
+
+		configText.requestFocusInWindow();
 	}
 
 	private void createPopupMenu(final JTree treePane, JTextPane configText) {
