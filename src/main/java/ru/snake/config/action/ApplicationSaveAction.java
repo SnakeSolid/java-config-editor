@@ -44,6 +44,11 @@ public class ApplicationSaveAction extends ActionAdapter {
 
 			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 				file = chooser.getSelectedFile();
+				String fileName = file.getName();
+
+				if (!fileName.endsWith(".config")) {
+					file = new File(fileName + ".config");
+				}
 
 				if (!file.exists() || file.canWrite()) {
 					executor.executeSaveFile(file);
