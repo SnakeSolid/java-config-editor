@@ -84,10 +84,12 @@ public class SyntaxLoaderWorker extends AbstractConfigWorker {
 						ConfigNode column = attribute.getChild(columnName);
 						String type = column.getValue("Type");
 						String reference = column.getValue("Reference", "");
+						String defaultValue = column.getValue("Default", "");
 
 						ColumnEntry columnEntry = new ColumnEntry();
 						columnEntry.setType(type);
 						columnEntry.setReference(reference);
+						columnEntry.setDefaultValue(defaultValue);
 
 						for (String value : column.getValues("Value")) {
 							columnEntry.addValue(value);
