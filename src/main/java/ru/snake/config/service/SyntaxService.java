@@ -119,6 +119,24 @@ public class SyntaxService implements SyntaxHandler {
 					.getAttributes()) {
 				String attributeName = entry.getName();
 
+				if (!node.hasAttribute(attributeName)) {
+					for (ColumnEntry column : entry.getColumns()) {
+						String type = column.getType();
+
+						if (!type.equals(CONFIG_ENTRY_KEY)) {
+							continue;
+						}
+
+						String value = column.getDefaultValue();
+
+						if (childName.equals(value)) {
+							found = true;
+
+							break attributeLoop;
+						}
+					}
+				}
+
 				for (String rowValue : node.getValues(attributeName)) {
 					Iterator<ColumnEntry> iterator = entry.getColumns()
 							.iterator();
