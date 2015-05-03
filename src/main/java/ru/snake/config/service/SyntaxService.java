@@ -386,8 +386,14 @@ public class SyntaxService implements SyntaxHandler {
 			parent = parent.getParent();
 		}
 
+		if (!elements.isEmpty()) {
+			elements.removeLast();
+		}
+
 		StringBuilder builder = new StringBuilder();
 		Iterator<String> it = elements.descendingIterator();
+
+		builder.append('[');
 
 		while (it.hasNext()) {
 			String element = it.next();
@@ -395,6 +401,8 @@ public class SyntaxService implements SyntaxHandler {
 			builder.append('/');
 			builder.append(element);
 		}
+
+		builder.append(']');
 
 		return builder.toString();
 	}
