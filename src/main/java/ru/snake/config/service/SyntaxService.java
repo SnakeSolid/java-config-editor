@@ -37,6 +37,16 @@ import ru.snake.config.util.Patterns;
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
 public class SyntaxService implements SyntaxHandler {
 
+	private static final String TYPE_STRING = "String";
+	private static final String TYPE_NME_ATTRIBUTE = "NMEAttribute";
+	private static final String TYPE_CLASS_NAME = "ClassName";
+	private static final String TYPE_IP_ADDRESS = "IPAddress";
+	private static final String TYPE_FLOAT = "Float";
+	private static final String TYPE_LONG = "Long";
+	private static final String TYPE_INTEGER = "Integer";
+	private static final String TYPE_BOOLEAN = "Boolean";
+	private static final String CATEGORY_UNDEFINED = "<undefined>";
+	private static final String CONFIG_ENTRY_KEY = "ConfigEntry";
 	private static final String CLASS_NAME_KEY = "ClassName";
 
 	@Autowired
@@ -54,221 +64,329 @@ public class SyntaxService implements SyntaxHandler {
 	public Collection<SyntaxError> checkNode(ConfigNode node) {
 		Collection<SyntaxError> result = new LinkedList<>();
 
-		result.addAll(checkClassName(node));
-		result.addAll(checkSubcomponent(node));
-		result.addAll(checkAttribute(node));
+		if (node.hasAttribute(CLASS_NAME_KEY)) {
+			List<String> classNames = node.getValues(CLASS_NAME_KEY);
+
+			if (classNames.size() == 1) {
+				String className = getClassName(classNames.iterator().next());
+
+				if (components.containsKey(className)) {
+					ComponentEntry component = components.get(className);
+
+					result.addAll(checkRequiredAttributes(component, node));
+					result.addAll(checkMultiValuedAttributes(component, node));
+					result.addAll(checkUnusedAttributes(component, node));
+					result.addAll(checkAttributeValues(component, node));
+
+					result.addAll(checkRequiredSubcomponents(component, node));
+					result.addAll(checkSubcomponentCategories(component, node));
+					result.addAll(checkUnusedSubcomponent(component, node));
+				}
+			} else {
+				TooManyValuesError error = new TooManyValuesError();
+				error.setAttribute(CLASS_NAME_KEY);
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
+
+				result.add(error);
+			}
+		}
 
 		return result;
 	}
 
-	private Collection<? extends SyntaxError> checkAttribute(ConfigNode node) {
+	private Collection<? extends SyntaxError> checkUnusedSubcomponent(
+			ComponentEntry component, ConfigNode node) {
 		Collection<SyntaxError> result = new LinkedList<>();
 
-		for (String className : node.getValues(CLASS_NAME_KEY)) {
-			if (!components.containsKey(className)) {
+		for (ConfigNode child : node.getChildren()) {
+			String childName = child.getName();
+			boolean found = false;
+
+			for (SubcomponentEntry entry : component.getSubcomponents()) {
+				if (entry.getName().equals(childName)) {
+					found = true;
+
+					break;
+				}
+			}
+
+			if (found) {
 				continue;
 			}
 
-			ComponentEntry component = components.get(className);
-
-			// Check for required attributes
-			for (AttributeEntry entry : component.getAttributes()) {
-				if (!entry.isRequired()) {
-					continue;
-				}
-
+			attributeLoop: for (AttributeEntry entry : component
+					.getAttributes()) {
 				String attributeName = entry.getName();
 
-				if (!node.hasAttribute(attributeName)) {
-					AttributeRequiredError error = new AttributeRequiredError();
-					error.setAttribute(attributeName);
-					error.setPath(getPath(node));
-					error.setLocation(node.getName());
+				for (String rowValue : node.getValues(attributeName)) {
+					Iterator<ColumnEntry> iterator = entry.getColumns()
+							.iterator();
 
-					result.add(error);
-				}
-			}
-
-			// Check for miltivalued attributes
-			for (AttributeEntry entry : component.getAttributes()) {
-				if (entry.isMultiValued()) {
-					continue;
-				}
-
-				String attributeName = entry.getName();
-
-				if (node.getValues(attributeName).size() > 1) {
-					TooManyValuesError error = new TooManyValuesError();
-					error.setAttribute(attributeName);
-					error.setPath(getPath(node));
-					error.setLocation(node.getName());
-
-					result.add(error);
-				}
-			}
-
-			// Check for unused attributes
-			for (String attributeName : node.getAttributes()) {
-				boolean found = false;
-
-				for (AttributeEntry entry : component.getAttributes()) {
-					if (entry.getName().equals(attributeName)) {
-						found = true;
-
-						break;
-					}
-				}
-
-				if (!found) {
-					UnusedAttributeError error = new UnusedAttributeError();
-					error.setAttribute(attributeName);
-					error.setPath(getPath(node));
-					error.setLocation(node.getName());
-
-					result.add(error);
-				}
-			}
-
-			// Check attribute values
-			for (AttributeEntry entry : component.getAttributes()) {
-				String attributeName = entry.getName();
-
-				for (String valueList : node.getValues(entry.getName())) {
-					Iterator<ColumnEntry> it = entry.getColumns().iterator();
-
-					try (Scanner scanner = new Scanner(valueList)) {
+					try (Scanner scanner = new Scanner(rowValue)) {
 						scanner.useDelimiter(Patterns.COLUMN_SEPARATOR);
 
 						while (scanner.hasNext()) {
 							ColumnEntry column;
 
-							if (it.hasNext()) {
-								column = it.next();
+							if (iterator.hasNext()) {
+								column = iterator.next();
 							} else {
-								TooManyColumnsError error = new TooManyColumnsError();
+								break;
+							}
+
+							String type = column.getType();
+							String value = scanner.next();
+
+							if (!type.equals(CONFIG_ENTRY_KEY)) {
+								continue;
+							}
+
+							if (childName.equals(value)) {
+								found = true;
+
+								break attributeLoop;
+							}
+						}
+					}
+				}
+			}
+
+			if (!found) {
+				UnusedSubcomponentError error = new UnusedSubcomponentError();
+				error.setSubcomponent(childName);
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
+
+				result.add(error);
+			}
+		}
+
+		return result;
+	}
+
+	private Collection<? extends SyntaxError> checkSubcomponentCategories(
+			ComponentEntry component, ConfigNode node) {
+		Collection<SyntaxError> result = new LinkedList<>();
+
+		for (SubcomponentEntry entry : component.getSubcomponents()) {
+			String entryName = entry.getName();
+
+			if (!node.hasChild(entryName)) {
+				continue;
+			}
+
+			ConfigNode child = node.getChild(entryName);
+
+			if (!child.hasAttribute(CLASS_NAME_KEY)) {
+				InvalidCategoryError error = new InvalidCategoryError();
+				error.setSubcomponent(entryName);
+				error.setGivenCategory(CATEGORY_UNDEFINED);
+				error.setExpectedCategory(entry.getCategory());
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
+
+				result.add(error);
+
+				continue;
+			}
+
+			String className = getClassName(child.getValue(CLASS_NAME_KEY));
+
+			if (components.containsKey(className)) {
+				ComponentEntry componentEntry = components.get(className);
+				String componentCategory = componentEntry.getCategory();
+				String category = entry.getCategory();
+
+				if (!category.equals(componentCategory)) {
+					InvalidCategoryError error = new InvalidCategoryError();
+					error.setSubcomponent(entryName);
+					error.setGivenCategory(componentCategory);
+					error.setExpectedCategory(category);
+					error.setPath(getPath(node));
+					error.setLocation(node.getName());
+
+					result.add(error);
+				}
+			}
+		}
+
+		return result;
+	}
+
+	private Collection<? extends SyntaxError> checkRequiredSubcomponents(
+			ComponentEntry component, ConfigNode node) {
+		Collection<SyntaxError> result = new LinkedList<>();
+
+		for (SubcomponentEntry entry : component.getSubcomponents()) {
+			if (!entry.isRequired()) {
+				continue;
+			}
+
+			String entryName = entry.getName();
+
+			if (!node.hasChild(entryName)) {
+				SubcomponentRequiredError error = new SubcomponentRequiredError();
+				error.setSubcomponent(entryName);
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
+
+				result.add(error);
+			}
+		}
+
+		return result;
+	}
+
+	private Collection<SyntaxError> checkAttributeValues(
+			ComponentEntry component, ConfigNode node) {
+		Collection<SyntaxError> result = new LinkedList<>();
+
+		for (AttributeEntry entry : component.getAttributes()) {
+			String attributeName = entry.getName();
+
+			for (String rowValue : node.getValues(attributeName)) {
+				Iterator<ColumnEntry> iterator = entry.getColumns().iterator();
+
+				try (Scanner scanner = new Scanner(rowValue)) {
+					scanner.useDelimiter(Patterns.COLUMN_SEPARATOR);
+					boolean wasString = false;
+
+					while (scanner.hasNext()) {
+						ColumnEntry column;
+
+						if (iterator.hasNext()) {
+							column = iterator.next();
+						} else if (!wasString) {
+							TooManyColumnsError error = new TooManyColumnsError();
+							error.setAttribute(attributeName);
+							error.setPath(getPath(node));
+							error.setLocation(node.getName());
+
+							result.add(error);
+
+							break;
+						} else {
+							break;
+						}
+
+						String value = scanner.next();
+						String type = column.getType();
+						Collection<String> validValues = column.getValues();
+
+						if (!validValues.isEmpty()) {
+							if (!validValues.contains(value)) {
+								InvalidValueError error = new InvalidValueError();
 								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
 								error.setPath(getPath(node));
 								error.setLocation(node.getName());
 
 								result.add(error);
 
-								break;
+								continue;
 							}
+						}
 
-							String value = scanner.next();
-							String type = column.getType();
-							Collection<String> validValues = column.getValues();
+						wasString = false;
 
-							if (!validValues.isEmpty()) {
-								if (!validValues.contains(value)) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
+						if (type.equals(TYPE_BOOLEAN)) {
+							if (value.equals(Boolean.TRUE.toString())
+									|| value.equals(Boolean.FALSE.toString())) {
+								; // it is boolean
+							} else {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
 
-									result.add(error);
-
-									continue;
-								}
+								result.add(error);
 							}
+						} else if (type.equals(TYPE_INTEGER)) {
+							try {
+								Integer.parseInt(value);
+							} catch (NumberFormatException e) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
 
-							if (type.equals("Boolean")) {
-								if (value.equals("true")
-										|| value.equals("false")) {
-									; // it is boolean
-								} else {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("Integer")) {
-								try {
-									Integer.parseInt(value);
-								} catch (NumberFormatException e) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("Long")) {
-								try {
-									Long.parseLong(value);
-								} catch (NumberFormatException e) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("Float")) {
-								try {
-									Float.parseFloat(value);
-								} catch (NumberFormatException e) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("IPAddress")) {
-								Matcher matcher = Patterns.IP_ADDRESS
-										.matcher(value);
-
-								if (!matcher.matches()) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("ClassName")) {
-								int index = value.lastIndexOf('.');
-								String valueClass = value.substring(index + 1);
-
-								if (!components.containsKey(valueClass)) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("ConfigEntry")) {
-								if (!node.hasChild(value)) {
-									InvalidValueError error = new InvalidValueError();
-									error.setAttribute(attributeName);
-									error.setType(type);
-									error.setValue(value);
-									error.setPath(getPath(node));
-									error.setLocation(node.getName());
-
-									result.add(error);
-								}
-							} else if (type.equals("NMEAttribute")) {
-								; // do not checked now
+								result.add(error);
 							}
+						} else if (type.equals(TYPE_LONG)) {
+							try {
+								Long.parseLong(value);
+							} catch (NumberFormatException e) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
+
+								result.add(error);
+							}
+						} else if (type.equals(TYPE_FLOAT)) {
+							try {
+								Float.parseFloat(value);
+							} catch (NumberFormatException e) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
+
+								result.add(error);
+							}
+						} else if (type.equals(TYPE_IP_ADDRESS)) {
+							Matcher matcher = Patterns.IP_ADDRESS
+									.matcher(value);
+
+							if (!matcher.matches()) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
+
+								result.add(error);
+							}
+						} else if (type.equals(TYPE_CLASS_NAME)) {
+							int index = value.lastIndexOf('.');
+							String valueClass = value.substring(index + 1);
+
+							if (!components.containsKey(valueClass)) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
+
+								result.add(error);
+							}
+						} else if (type.equals(CONFIG_ENTRY_KEY)) {
+							if (!node.hasChild(value)) {
+								InvalidValueError error = new InvalidValueError();
+								error.setAttribute(attributeName);
+								error.setType(type);
+								error.setValue(value);
+								error.setPath(getPath(node));
+								error.setLocation(node.getName());
+
+								result.add(error);
+							}
+						} else if (type.equals(TYPE_NME_ATTRIBUTE)) {
+							; // do not checked now
+						} else if (type.equals(TYPE_STRING)) {
+							wasString = true;
 						}
 					}
 				}
@@ -278,95 +396,87 @@ public class SyntaxService implements SyntaxHandler {
 		return result;
 	}
 
-	private Collection<SyntaxError> checkSubcomponent(ConfigNode node) {
+	private Collection<SyntaxError> checkUnusedAttributes(
+			ComponentEntry component, ConfigNode node) {
 		Collection<SyntaxError> result = new LinkedList<>();
 
-		for (String className : node.getValues(CLASS_NAME_KEY)) {
-			if (!components.containsKey(className)) {
-				continue;
-			}
+		for (String attributeName : node.getAttributes()) {
+			boolean found = false;
 
-			ComponentEntry component = components.get(className);
+			for (AttributeEntry entry : component.getAttributes()) {
+				if (entry.getName().equals(attributeName)) {
+					found = true;
 
-			// Check for required subcomponenets
-			for (SubcomponentEntry entry : component.getSubcomponents()) {
-				if (!entry.isRequired()) {
-					continue;
-				}
-
-				String entryName = entry.getName();
-
-				if (!node.hasChild(entryName)) {
-					SubcomponentRequiredError error = new SubcomponentRequiredError();
-					error.setSubcomponent(entryName);
-					error.setPath(getPath(node));
-					error.setLocation(node.getName());
-
-					result.add(error);
+					break;
 				}
 			}
 
-			// Check for subcomponenet categories
-			for (SubcomponentEntry entry : component.getSubcomponents()) {
-				String entryName = entry.getName();
+			if (!found) {
+				UnusedAttributeError error = new UnusedAttributeError();
+				error.setAttribute(attributeName);
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
 
-				if (components.containsKey(entryName)) {
-					ComponentEntry componentEntry = components.get(entryName);
-					String componentCategory = componentEntry.getCategory();
-					String category = entry.getCategory();
-
-					if (!category.equals(componentCategory)) {
-						InvalidCategoryError error = new InvalidCategoryError();
-						error.setSubcomponent(entryName);
-						error.setGivenCategory(componentCategory);
-						error.setExpectedCategory(category);
-						error.setPath(getPath(node));
-						error.setLocation(node.getName());
-
-						result.add(error);
-					}
-				}
-			}
-
-			// Check for unused subcomponenets
-			for (ConfigNode child : node.getChildren()) {
-				String childName = child.getName();
-				boolean found = false;
-
-				for (SubcomponentEntry entry : component.getSubcomponents()) {
-					if (entry.getName().equals(childName)) {
-						found = true;
-
-						break;
-					}
-				}
-
-				// need check attributes for using this node
-				found = true;
-
-				if (!found) {
-					UnusedSubcomponentError error = new UnusedSubcomponentError();
-					error.setSubcomponent(childName);
-					error.setPath(getPath(node));
-					error.setLocation(node.getName());
-
-					result.add(error);
-				}
+				result.add(error);
 			}
 		}
 
 		return result;
 	}
 
-	private Collection<SyntaxError> checkClassName(ConfigNode node) {
+	private Collection<SyntaxError> checkMultiValuedAttributes(
+			ComponentEntry component, ConfigNode node) {
 		Collection<SyntaxError> result = new LinkedList<>();
 
-		if (node.hasAttribute(CLASS_NAME_KEY)) {
-			List<String> classNames = node.getValues(CLASS_NAME_KEY);
+		for (AttributeEntry entry : component.getAttributes()) {
+			if (!entry.isRequired()) {
+				continue;
+			}
 
-			if (classNames.size() > 1) {
+			if (entry.isMultiValued()) {
+				continue;
+			}
+
+			String attributeName = entry.getName();
+			List<String> values = node.getValues(attributeName);
+
+			if (values.size() > 1) {
 				TooManyValuesError error = new TooManyValuesError();
-				error.setAttribute(CLASS_NAME_KEY);
+				error.setAttribute(attributeName);
+				error.setPath(getPath(node));
+				error.setLocation(node.getName());
+
+				result.add(error);
+			}
+		}
+
+		return result;
+	}
+
+	private String getClassName(String value) {
+		int index = value.lastIndexOf('.');
+
+		if (index == -1) {
+			return value;
+		}
+
+		return value.substring(index + 1);
+	}
+
+	private Collection<SyntaxError> checkRequiredAttributes(
+			ComponentEntry component, ConfigNode node) {
+		Collection<SyntaxError> result = new LinkedList<>();
+
+		for (AttributeEntry entry : component.getAttributes()) {
+			if (!entry.isRequired()) {
+				continue;
+			}
+
+			String attributeName = entry.getName();
+
+			if (!node.hasAttribute(attributeName)) {
+				AttributeRequiredError error = new AttributeRequiredError();
+				error.setAttribute(attributeName);
 				error.setPath(getPath(node));
 				error.setLocation(node.getName());
 
