@@ -19,7 +19,7 @@ public class TreePopupMenuListener extends MouseAdapter implements
 		this.popup = popup;
 	}
 
-	public void mouseReleased(MouseEvent e) {
+	public void mouseClicked(MouseEvent e) {
 		if (SwingUtilities.isRightMouseButton(e)) {
 			int row = tree.getClosestRowForLocation(e.getX(), e.getY());
 
