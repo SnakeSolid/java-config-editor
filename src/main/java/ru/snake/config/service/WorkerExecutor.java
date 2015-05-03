@@ -28,6 +28,7 @@ import ru.snake.config.worker.SaveSettingsWorker;
 import ru.snake.config.worker.ServerListWorker;
 import ru.snake.config.worker.StartProcessWorker;
 import ru.snake.config.worker.StopProcessWorker;
+import ru.snake.config.worker.SyntaxLoaderWorker;
 import ru.snake.config.worker.TreeBuilderWorker;
 
 @Service
@@ -212,6 +213,13 @@ public class WorkerExecutor {
 		checkSyntaxWorker.setSyntax(syntax);
 		checkSyntaxWorker.setContent(getContent());
 		checkSyntaxWorker.execute();
+	}
+
+	public void executeSyntaxLoader(SyntaxHandler handler) {
+		SyntaxLoaderWorker worker = new SyntaxLoaderWorker();
+		worker.setStatusDocument(model.getStatusModel());
+		worker.setHandler(handler);
+		worker.execute();
 	};
 
 }

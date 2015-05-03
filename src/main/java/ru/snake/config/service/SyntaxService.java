@@ -1,9 +1,5 @@
 package ru.snake.config.service;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
@@ -14,8 +10,7 @@ import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
@@ -31,71 +26,23 @@ import ru.snake.config.syntax.error.TooManyValuesError;
 import ru.snake.config.syntax.error.UnusedAttributeError;
 import ru.snake.config.syntax.error.UnusedSubcomponentError;
 import ru.snake.config.tree.ConfigNode;
-import ru.snake.config.tree.TreeParser;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)
-public class SyntaxService {
+public class SyntaxService implements SyntaxHandler {
 
 	private static final String CLASS_NAME_KEY = "ClassName";
-	private static final String SYNTAX_DIRECTORY = "spell";
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(SyntaxService.class);
+	@Autowired
+	private WorkerExecutor executor;
 
 	private Map<String, ComponentEntry> components;
 
-	public SyntaxService() {
-		components = new HashMap<String, ComponentEntry>();
-	}
-
 	@PostConstruct
 	private void inintialize() {
-		components.clear();
+		components = new HashMap<String, ComponentEntry>();
 
-		for (File syntaxFile : new File(SYNTAX_DIRECTORY).listFiles()) {
-			ConfigNode root = null;
-
-			try (InputStream stream = new FileInputStream(syntaxFile)) {
-				root = TreeParser.parse(stream);
-			} catch (IOException e) {
-				logger.warn("Unable to initialize spelling", e);
-			}
-
-			if (root == null) {
-				return;
-			}
-
-			for (ConfigNode child : root.getChildren()) {
-				ComponentEntry component = new ComponentEntry();
-				component.setClassName(child.getValue("ClassName"));
-				component.setPackageName(child.getValue("PackageName"));
-				component.setCategory(child.getValue("Category"));
-
-				for (String subcomponentName : child.getValues("Subcomponent")) {
-					ConfigNode subcomponent = child.getChild(subcomponentName);
-					String name = subcomponent.getValue("Name");
-					String category = subcomponent.getValue("Category");
-					String required = subcomponent.getValue("Required");
-
-					component.addSubcomponent(name, category,
-							Boolean.parseBoolean(required));
-				}
-
-				for (String subcomponentName : child.getValues("Attribute")) {
-					ConfigNode subcomponent = child.getChild(subcomponentName);
-					String name = subcomponent.getValue("Name");
-					String required = subcomponent.getValue("Required");
-					String multi = subcomponent.getValue("MultiValued");
-
-					component.addAttribute(name,
-							Boolean.parseBoolean(required),
-							Boolean.parseBoolean(multi));
-				}
-
-				components.put(component.getClassName(), component);
-			}
-		}
+		executor.executeSyntaxLoader(this);
 	}
 
 	public Collection<SyntaxError> checkNode(ConfigNode node) {
@@ -296,6 +243,18 @@ public class SyntaxService {
 		}
 
 		return builder.toString();
+	}
+
+	@Override
+	public void handleComponent(ComponentEntry entry) {
+		components.put(entry.getClassName(), entry);
+	}
+
+	@Override
+	public void handleComponents(Collection<ComponentEntry> entries) {
+		for (ComponentEntry entry : entries) {
+			components.put(entry.getClassName(), entry);
+		}
 	}
 
 }

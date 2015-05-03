@@ -41,21 +41,11 @@ public class ComponentEntry {
 		this.category = category;
 	}
 
-	public void addSubcomponent(String name, String category, boolean required) {
-		SubcomponentEntry entry = new SubcomponentEntry();
-		entry.setName(name);
-		entry.setCategory(category);
-		entry.setRequired(required);
-
+	public void addSubcomponent(SubcomponentEntry entry) {
 		subcomponents.add(entry);
 	}
 
-	public void addAttribute(String name, boolean required, boolean multi) {
-		AttributeEntry entry = new AttributeEntry();
-		entry.setName(name);
-		entry.setRequired(required);
-		entry.setMultiValued(multi);
-
+	public void addAttribute(AttributeEntry entry) {
 		attributes.add(entry);
 	}
 
