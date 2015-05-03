@@ -18,6 +18,8 @@ import ru.snake.config.tree.TreeParser;
 
 public class SyntaxLoaderWorker extends AbstractConfigWorker {
 
+	private static final int BATCH_SIZE = 100;
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(SyntaxLoaderWorker.class);
 
@@ -81,9 +83,17 @@ public class SyntaxLoaderWorker extends AbstractConfigWorker {
 				}
 
 				components.add(component);
+
+				if (components.size() > BATCH_SIZE) {
+					handler.handleComponents(components);
+
+					components.clear();
+				}
 			}
 
-			handler.handleComponents(components);
+			if (!components.isEmpty()) {
+				handler.handleComponents(components);
+			}
 		}
 
 		return null;
