@@ -38,7 +38,7 @@ public class ApplicationOpenAction extends ActionAdapter {
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		FileFilter configFilter = new FileNameExtensionFilter(
-				"SIU configuration file", "config", "conf");
+				"SIU configuration file (*.config)", "config", "conf", "cfg");
 		JFileChooser chooser = new JFileChooser(model.getWorkingDirectory());
 		chooser.setFileFilter(configFilter);
 		chooser.setMultiSelectionEnabled(false);
