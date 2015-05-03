@@ -7,6 +7,8 @@ import java.io.File;
 
 import javax.annotation.PostConstruct;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,7 +38,10 @@ public class ApplicationSaveAsAction extends ActionAdapter {
 
 	@Override
 	public void actionPerformed(ActionEvent event) {
+		FileFilter configFilter = new FileNameExtensionFilter(
+				"SIU configuration file", "config", "conf");
 		JFileChooser chooser = new JFileChooser(model.getWorkingDirectory());
+		chooser.setFileFilter(configFilter);
 		chooser.setMultiSelectionEnabled(false);
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
