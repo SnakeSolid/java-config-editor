@@ -89,6 +89,10 @@ public class SyntaxLoaderWorker extends AbstractConfigWorker {
 						columnEntry.setType(type);
 						columnEntry.setReference(reference);
 
+						for (String value : column.getValues("Value")) {
+							columnEntry.addValue(value);
+						}
+
 						entry.addColumn(columnEntry);
 					}
 
