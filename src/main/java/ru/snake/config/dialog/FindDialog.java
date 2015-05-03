@@ -260,6 +260,7 @@ public class FindDialog extends JDialog implements ActionListener {
 
 		setLocationRelativeTo(null);
 		setResizable(false);
+		setAutoRequestFocus(true);
 		setAlwaysOnTop(true);
 
 		logger.info("FindDialog created.");

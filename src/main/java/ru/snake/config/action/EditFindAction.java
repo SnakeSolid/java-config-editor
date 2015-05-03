@@ -39,7 +39,6 @@ public class EditFindAction extends ActionAdapter {
 
 			dialog.setSource(textComponent);
 			dialog.setVisible(true);
-			dialog.requestFocusInWindow();
 		}
 	}
 
