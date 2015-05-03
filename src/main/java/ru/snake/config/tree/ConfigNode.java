@@ -144,4 +144,18 @@ public class ConfigNode {
 		return attributes.get(attribute).iterator().next();
 	}
 
+	public String getValue(String attribute, String defaultValue) {
+		if (!attributes.containsKey(attribute)) {
+			return defaultValue;
+		}
+
+		List<String> list = attributes.get(attribute);
+
+		if (list.isEmpty()) {
+			return defaultValue;
+		}
+
+		return list.iterator().next();
+	}
+
 }

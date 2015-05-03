@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import ru.snake.config.service.SyntaxHandler;
 import ru.snake.config.syntax.AttributeEntry;
+import ru.snake.config.syntax.ColumnEntry;
 import ru.snake.config.syntax.ComponentEntry;
 import ru.snake.config.syntax.SubcomponentEntry;
 import ru.snake.config.tree.ConfigNode;
@@ -52,12 +53,12 @@ public class SyntaxLoaderWorker extends AbstractConfigWorker {
 				ComponentEntry component = new ComponentEntry();
 				component.setClassName(child.getValue("ClassName"));
 				component.setPackageName(child.getValue("PackageName"));
-				component.setCategory(child.getValue("Category"));
+				component.setCategory(child.getValue("Category", ""));
 
 				for (String subcomponentName : child.getValues("Subcomponent")) {
 					ConfigNode subcomponent = child.getChild(subcomponentName);
 					String name = subcomponent.getValue("Name");
-					String category = subcomponent.getValue("Category");
+					String category = subcomponent.getValue("Category", "");
 					String required = subcomponent.getValue("Required");
 
 					SubcomponentEntry entry = new SubcomponentEntry();
@@ -68,16 +69,28 @@ public class SyntaxLoaderWorker extends AbstractConfigWorker {
 					component.addSubcomponent(entry);
 				}
 
-				for (String subcomponentName : child.getValues("Attribute")) {
-					ConfigNode subcomponent = child.getChild(subcomponentName);
-					String name = subcomponent.getValue("Name");
-					String required = subcomponent.getValue("Required");
-					String multi = subcomponent.getValue("MultiValued");
+				for (String attributeName : child.getValues("Attribute")) {
+					ConfigNode attribute = child.getChild(attributeName);
+					String name = attribute.getValue("Name");
+					String required = attribute.getValue("Required");
+					String multi = attribute.getValue("MultiValued");
 
 					AttributeEntry entry = new AttributeEntry();
 					entry.setName(name);
 					entry.setRequired(Boolean.parseBoolean(required));
 					entry.setMultiValued(Boolean.parseBoolean(multi));
+
+					for (String columnName : attribute.getValues("Column")) {
+						ConfigNode column = attribute.getChild(columnName);
+						String type = column.getValue("Type");
+						String reference = column.getValue("Reference", "");
+
+						ColumnEntry columnEntry = new ColumnEntry();
+						columnEntry.setType(type);
+						columnEntry.setReference(reference);
+
+						entry.addColumn(columnEntry);
+					}
 
 					component.addAttribute(entry);
 				}
