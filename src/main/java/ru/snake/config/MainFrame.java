@@ -59,6 +59,7 @@ import ru.snake.config.action.EditUndoAction;
 import ru.snake.config.action.TreeGotoAction;
 import ru.snake.config.action.TreeSelectAction;
 import ru.snake.config.listener.FilterUndoListener;
+import ru.snake.config.listener.GotoErrorListener;
 import ru.snake.config.listener.TreePopupMenuListener;
 import ru.snake.config.model.ConfigModel;
 import ru.snake.config.service.SiuListener;
@@ -163,7 +164,8 @@ public class MainFrame extends JFrame implements SiuListener {
 
 		JToolBar toolbar = createToolbar();
 
-		JTextPane configText = new JTextPane(model.getConfigurationModel());
+		final JTextPane configText = new JTextPane(
+				model.getConfigurationModel());
 		JScrollPane configPane = new JScrollPane(configText,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -239,10 +241,14 @@ public class MainFrame extends JFrame implements SiuListener {
 		// -------------------------
 
 		JTabbedPane infoPane = new JTabbedPane();
-		infoPane.addTab("Problems",
-				new JScrollPane(new JTable(model.getProblemsModel()),
-						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+
+		final JTable problemsTable = new JTable(model.getProblemsModel());
+		problemsTable.addMouseListener(new GotoErrorListener(problemsTable, 1,
+				configText));
+
+		infoPane.addTab("Problems", new JScrollPane(problemsTable,
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
 
 		infoPane.addTab("Details",
 				new JScrollPane(new JTable(model.getDetailsModel()),
