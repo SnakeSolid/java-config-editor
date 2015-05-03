@@ -226,28 +226,15 @@ public class FindDialog extends JDialog implements ActionListener {
 			Matcher selectionMatcher = pattern.matcher(selection);
 
 			if (selectionMatcher.matches()) {
+				String subtitute = selectionMatcher.replaceFirst(replacement);
 				int selectionStart = textComponent.getSelectionStart();
 				int selectionEnd = textComponent.getSelectionEnd();
 
-				substituteText(replacement, selectionStart, selectionEnd);
+				substituteText(subtitute, selectionStart, selectionEnd);
 			}
 		}
 
-		Document document = textComponent.getDocument();
-		String content = getContent(document);
-		Matcher matcher = pattern.matcher(content);
-
-		if (matcher.find(fromIndex)) {
-			textComponent.setSelectionStart(matcher.start());
-			textComponent.setSelectionEnd(matcher.end());
-			textComponent.requestFocusInWindow();
-		} else if (wrapSearch && matcher.find(0)) {
-			substituteText(replacement, matcher.start(), matcher.end());
-
-			textComponent.setSelectionStart(matcher.start());
-			textComponent.setSelectionEnd(matcher.end());
-			textComponent.requestFocusInWindow();
-		}
+		findPattern(pattern, fromIndex, wrapSearch);
 	}
 
 	private void substituteText(String replacement, int selectionStart,
