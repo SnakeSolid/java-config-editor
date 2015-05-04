@@ -13,7 +13,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import ru.snake.config.util.DetailsItem;
+import ru.snake.config.model.data.DetailsItem;
 import ru.snake.config.util.DetatilsDescriptor;
 
 @SuppressWarnings("serial")

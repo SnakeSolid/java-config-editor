@@ -1,4 +1,4 @@
-package ru.snake.config.util;
+package ru.snake.config.model.data;
 
 import ru.snake.config.syntax.error.ErrorLevel;
 

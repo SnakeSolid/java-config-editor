@@ -1,8 +1,6 @@
-package ru.snake.config.model;
+package ru.snake.config.model.data;
 
 import java.util.Comparator;
-
-import ru.snake.config.util.ProblemItem;
 
 public class ProblemItemComparator implements Comparator<ProblemItem> {
 
