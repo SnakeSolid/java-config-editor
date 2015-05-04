@@ -178,6 +178,10 @@ public class HighlightWorker extends SwingWorker<Void, Void> {
 
 	@Override
 	protected void done() {
+		if (content.length() != document.getLength()) {
+			return;
+		}
+
 		for (Token token : tokens) {
 			if (isCancelled()) {
 				break;
