@@ -191,10 +191,11 @@ public class WorkerExecutor {
 		worker.execute();
 	}
 
-	public void executeByteTailer(String serverName, LogTailHandler handler) {
+	public void executeByteTailer(String processName, String serverName, LogTailHandler handler) {
 		ByteTailerWorker worker = new ByteTailerWorker();
 		worker.setStatusDocument(model.getStatusModel());
 		worker.setService(service);
+		worker.setProcessName(processName);
 		worker.setServerName(serverName);
 		worker.setHandler(handler);
 		worker.execute();

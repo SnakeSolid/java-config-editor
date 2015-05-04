@@ -123,32 +123,27 @@ public class LogTailTask implements ListDataListener, LogTailHandler {
 	@Override
 	public void contentsChanged(ListDataEvent event) {
 		synchronized (lock) {
+			this.fileName = null;
+			this.fileTailer = null;
+			this.fileOffset = 0;
+
 			initialized = false;
 		}
 
 		String serverName = (String) model.getServersModel().getSelectedItem();
-		String collectorName = (String) model.getCollectorsModel()
+		String processName = (String) model.getCollectorsModel()
 				.getSelectedItem();
 
-		if (serverName == null) {
+		if (serverName == null || serverName.isEmpty()) {
 			return;
 		}
 
-		if (collectorName == null) {
+		if (processName == null || processName.isEmpty()) {
 			return;
 		}
 
 		synchronized (lock) {
-			try {
-				executor.executeByteTailer(serverName, this);
-
-				fileName = service.getLogFileName(serverName, collectorName);
-				fileOffset = 0;
-			} catch (ClientException e) {
-				logger.warn("Error occured while getting file size", e);
-
-				return;
-			}
+			executor.executeByteTailer(processName, serverName, this);
 		}
 
 		TrimAppender appender = new TrimAppender(model.getLogModel());
@@ -164,10 +159,13 @@ public class LogTailTask implements ListDataListener, LogTailHandler {
 	}
 
 	@Override
-	public void byteTailerCreated(String serverName,
+	public void byteTailerCreated(String serverName, String filename,
 			SafeFileHandlerClient fileTailer) {
 		synchronized (lock) {
+			this.fileName = filename;
 			this.fileTailer = fileTailer;
+			this.fileOffset = 0;
+
 			this.initialized = true;
 		}
 	}
