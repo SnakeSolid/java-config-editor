@@ -142,9 +142,7 @@ public class LogTailTask implements ListDataListener, LogTailHandler {
 			return;
 		}
 
-		synchronized (lock) {
-			executor.executeByteTailer(processName, serverName, this);
-		}
+		executor.executeByteTailer(processName, serverName, this);
 
 		TrimAppender appender = new TrimAppender(model.getLogModel());
 		SwingUtilities.invokeLater(appender);
