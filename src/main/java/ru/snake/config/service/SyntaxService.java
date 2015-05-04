@@ -173,7 +173,7 @@ public class SyntaxService implements SyntaxHandler {
 			if (!found) {
 				UnusedSubcomponentError error = new UnusedSubcomponentError();
 				error.setSubcomponent(childName);
-				error.setPath(getPath(node));
+				error.setPath(getPath(child));
 				error.setLocation(node.getName());
 
 				result.add(error);
@@ -201,7 +201,7 @@ public class SyntaxService implements SyntaxHandler {
 				error.setSubcomponent(entryName);
 				error.setGivenCategory(CATEGORY_UNDEFINED);
 				error.setExpectedCategory(entry.getCategory());
-				error.setPath(getPath(node));
+				error.setPath(getPath(child));
 				error.setLocation(node.getName());
 
 				result.add(error);
@@ -221,7 +221,7 @@ public class SyntaxService implements SyntaxHandler {
 					error.setSubcomponent(entryName);
 					error.setGivenCategory(componentCategory);
 					error.setExpectedCategory(category);
-					error.setPath(getPath(node));
+					error.setPath(getPath(child));
 					error.setLocation(node.getName());
 
 					result.add(error);
