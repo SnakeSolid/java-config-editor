@@ -63,7 +63,7 @@ public class DetailsUpdateTask implements ListDataListener {
 		try {
 			service.getProcessDetails(serverName, processName, descriptor);
 		} catch (ClientException e) {
-			logger.warn("Error updating datails", e);
+			logger.warn("Error updating details", e);
 		}
 
 		UpdateDetailsRunnable runnable = new UpdateDetailsRunnable();
@@ -73,7 +73,7 @@ public class DetailsUpdateTask implements ListDataListener {
 		try {
 			SwingUtilities.invokeAndWait(runnable);
 		} catch (InvocationTargetException | InterruptedException e) {
-			logger.warn("Error updating datails", e);
+			logger.warn("Error updating details", e);
 		}
 	}
 
