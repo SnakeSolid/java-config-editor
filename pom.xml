@@ -44,6 +44,13 @@
 			<groupId>org.jacorb</groupId>
 			<artifactId>jacorb</artifactId>
 			<version>${jacorb.version}</version>
+
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-jdk14</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
