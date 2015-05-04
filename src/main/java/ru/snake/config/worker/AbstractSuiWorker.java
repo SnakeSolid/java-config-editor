@@ -11,10 +11,10 @@ import com.hp.siu.utils.Config;
 
 public abstract class AbstractSuiWorker extends AbstractConfigWorker {
 
-	protected static final String[] PROCESS_CLASS = { ".CollectorProcess",
-			".ConfigServerProcess", ".LogConsolidatorProcess",
-			".PolicyServerProcess", ".ScheduleServerProcess",
-			".SessionServerProcess" };
+	protected static final String[] PROCESS_CLASS = { "CollectorProcess",
+			"ConfigServerProcess", "LogConsolidatorProcess",
+			"PolicyServerProcess", "ScheduleServerProcess",
+			"SessionServerProcess" };
 
 	protected static final String PROPERTIES_NODE = "Properties";
 
@@ -39,8 +39,17 @@ public abstract class AbstractSuiWorker extends AbstractConfigWorker {
 	private void findProcessesReq(ConfigNode node,
 			Collection<ConfigNode> processes) {
 		for (String value : node.getValues(CLASSNAME_ATTRIBUTE)) {
-			for (String className : PROCESS_CLASS) {
-				if (value.endsWith(className)) {
+			String className;
+			int index = value.lastIndexOf('.');
+
+			if (index == -1) {
+				className = value;
+			} else {
+				className = value.substring(index + 1);
+			}
+
+			for (String validClass : PROCESS_CLASS) {
+				if (className.equals(validClass)) {
 					processes.add(node);
 
 					return;
