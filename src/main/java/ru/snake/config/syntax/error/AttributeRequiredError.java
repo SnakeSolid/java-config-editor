@@ -13,6 +13,11 @@ public class AttributeRequiredError extends SyntaxError {
 	}
 
 	@Override
+	public ErrorLevel getLevel() {
+		return ErrorLevel.ERROR;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Attribute ");

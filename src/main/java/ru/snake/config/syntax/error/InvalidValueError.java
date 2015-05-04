@@ -31,6 +31,11 @@ public class InvalidValueError extends SyntaxError {
 	}
 
 	@Override
+	public ErrorLevel getLevel() {
+		return ErrorLevel.WARNING;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Invalid value for ");

@@ -13,6 +13,11 @@ public class TooManyValuesError extends SyntaxError {
 	}
 
 	@Override
+	public ErrorLevel getLevel() {
+		return ErrorLevel.WARNING;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Multiple walues for single valued attrubite ");

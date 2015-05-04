@@ -13,6 +13,11 @@ public class UnusedSubcomponentError extends SyntaxError {
 	}
 
 	@Override
+	public ErrorLevel getLevel() {
+		return ErrorLevel.HINT;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Unused subcomponent ");

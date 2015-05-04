@@ -1,6 +1,6 @@
 package ru.snake.config.syntax.error;
 
-public class SyntaxError {
+public abstract class SyntaxError {
 
 	protected String path;
 	protected String location;
@@ -20,6 +20,8 @@ public class SyntaxError {
 	public void setLocation(String location) {
 		this.location = location;
 	}
+
+	public abstract ErrorLevel getLevel();
 
 	@Override
 	public String toString() {

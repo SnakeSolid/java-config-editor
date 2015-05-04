@@ -43,6 +43,8 @@ import javax.swing.PopupFactory;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.event.DocumentListener;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoManager;
@@ -62,6 +64,7 @@ import ru.snake.config.listener.FilterUndoListener;
 import ru.snake.config.listener.GotoErrorListener;
 import ru.snake.config.listener.TreePopupMenuListener;
 import ru.snake.config.model.ConfigModel;
+import ru.snake.config.renderer.ErrorLevelCellRenderer;
 import ru.snake.config.service.SiuListener;
 import ru.snake.config.service.SiuService;
 import ru.snake.config.task.LogTailTask;
@@ -164,8 +167,7 @@ public class MainFrame extends JFrame implements SiuListener {
 
 		JToolBar toolbar = createToolbar();
 
-		final JTextPane configText = new JTextPane(
-				model.getConfigurationModel());
+		JTextPane configText = new JTextPane(model.getConfigurationModel());
 		JScrollPane configPane = new JScrollPane(configText,
 				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
 				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -241,10 +243,7 @@ public class MainFrame extends JFrame implements SiuListener {
 		// -------------------------
 
 		JTabbedPane infoPane = new JTabbedPane();
-
-		final JTable problemsTable = new JTable(model.getProblemsModel());
-		problemsTable.addMouseListener(new GotoErrorListener(problemsTable, 1,
-				configText));
+		JTable problemsTable = createProblemsTable(configText);
 
 		infoPane.addTab("Problems", new JScrollPane(problemsTable,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -319,6 +318,25 @@ public class MainFrame extends JFrame implements SiuListener {
 		// -------------------------
 
 		configText.requestFocusInWindow();
+	}
+
+	private JTable createProblemsTable(JTextPane configText) {
+		JTable problemsTable = new JTable(model.getProblemsModel());
+		problemsTable.addMouseListener(new GotoErrorListener(problemsTable, 2,
+				configText));
+
+		TableColumnModel columnModel = problemsTable.getColumnModel();
+
+		TableColumn levelColumn = columnModel.getColumn(0);
+		levelColumn.setMinWidth(40);
+		levelColumn.setPreferredWidth(40);
+		levelColumn.setMaxWidth(40);
+		levelColumn.setCellRenderer(new ErrorLevelCellRenderer());
+
+		TableColumn descriptionColumn = columnModel.getColumn(1);
+		descriptionColumn.setPreferredWidth(300);
+
+		return problemsTable;
 	}
 
 	private void createPopupMenu(final JTree treePane, JTextPane configText) {

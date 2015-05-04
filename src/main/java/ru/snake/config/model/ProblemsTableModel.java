@@ -2,6 +2,7 @@ package ru.snake.config.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import ru.snake.config.syntax.error.ErrorLevel;
 import ru.snake.config.syntax.error.SyntaxError;
 import ru.snake.config.util.ProblemItem;
 
@@ -20,10 +22,10 @@ import ru.snake.config.util.ProblemItem;
 public class ProblemsTableModel extends AbstractTableModel implements
 		TableModel {
 
-	private static final String[] COLUMN_NAMES = new String[] { "Description",
-			"Path", "Location" };
+	private static final String[] COLUMN_NAMES = new String[] { "Level",
+			"Description", "Path", "Location" };
 	private static final Class<?>[] COLUMN_TYPES = new Class<?>[] {
-			String.class, String.class, String.class };
+			ErrorLevel.class, String.class, String.class, String.class };
 
 	private final List<ProblemItem> items;
 
@@ -54,10 +56,12 @@ public class ProblemsTableModel extends AbstractTableModel implements
 	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		if (columnIndex == 0) {
-			return items.get(rowIndex).getDescription();
+			return items.get(rowIndex).getLevel();
 		} else if (columnIndex == 1) {
-			return items.get(rowIndex).getPath();
+			return items.get(rowIndex).getDescription();
 		} else if (columnIndex == 2) {
+			return items.get(rowIndex).getPath();
+		} else if (columnIndex == 3) {
 			return items.get(rowIndex).getLocation();
 		}
 
@@ -71,12 +75,15 @@ public class ProblemsTableModel extends AbstractTableModel implements
 
 		for (SyntaxError error : errors) {
 			ProblemItem item = new ProblemItem();
+			item.setLevel(error.getLevel());
 			item.setDescription(error.toString());
 			item.setPath(error.getPath());
 			item.setLocation(error.getLocation());
 
 			items.add(item);
 		}
+
+		Collections.sort(items, new ProblemItemComparator());
 
 		int newCount = items.size();
 

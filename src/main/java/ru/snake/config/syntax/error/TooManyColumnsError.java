@@ -13,6 +13,11 @@ public class TooManyColumnsError extends SyntaxError {
 	}
 
 	@Override
+	public ErrorLevel getLevel() {
+		return ErrorLevel.WARNING;
+	}
+
+	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Too many columns for attrubite ");
