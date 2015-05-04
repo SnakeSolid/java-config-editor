@@ -52,8 +52,8 @@ public class ApplicationSaveAction extends ActionAdapter {
 				file = chooser.getSelectedFile();
 				String fileName = file.getName();
 
-				if (!fileName.endsWith(".config")) {
-					file = new File(fileName + ".config");
+				if (fileName.indexOf('.') == -1) {
+					file = new File(file.getParentFile(), fileName + ".config");
 				}
 
 				if (!file.exists() || file.canWrite()) {
