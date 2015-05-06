@@ -22,23 +22,37 @@
 		<main-class>ru.snake.config.Application</main-class>
 	</properties>
 
+	<repositories>
+		<repository>
+			<id>libraries</id>
+			<name>Local Libraries</name>
+
+			<releases>
+				<enabled>true</enabled>
+				<checksumPolicy>ignore</checksumPolicy>
+			</releases>
+
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+
+			<url>file://${project.basedir}/lib</url>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<!-- HP IUM libraries -->
 
 		<dependency>
-			<groupId>com.hp.sui</groupId>
+			<groupId>com.hp.siu</groupId>
 			<artifactId>loader</artifactId>
 			<version>${sui.version}</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/siuloader.jar</systemPath>
 		</dependency>
 
 		<dependency>
-			<groupId>com.hp.sui</groupId>
+			<groupId>com.hp.siu</groupId>
 			<artifactId>utils</artifactId>
 			<version>${sui.version}</version>
-			<scope>system</scope>
-			<systemPath>${basedir}/lib/siuutils.jar</systemPath>
 		</dependency>
 
 		<!-- Maven libraries -->
