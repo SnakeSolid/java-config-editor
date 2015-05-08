@@ -1,6 +1,9 @@
 package ru.snake.config.worker;
 
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.StyledDocument;
@@ -68,10 +71,15 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 
 		@SuppressWarnings("unchecked")
 		Enumeration<String> attributes = node.getAttributeNames();
+		List<String> attrinbuteNames = new LinkedList<String>();
 
 		while (attributes.hasMoreElements()) {
-			String attribute = attributes.nextElement();
+			attrinbuteNames.add(attributes.nextElement());
+		}
 
+		Collections.sort(attrinbuteNames);
+
+		for (String attribute : attrinbuteNames) {
 			for (String value : node.getAttributes(attribute)) {
 				content.append(attribute);
 				content.append('=');
@@ -84,9 +92,15 @@ public class LoadConfigWorker extends AbstractSuiWorker {
 
 		@SuppressWarnings("unchecked")
 		Enumeration<String> children = node.getConfigNames();
+		List<String> childNames = new LinkedList<String>();
 
 		while (children.hasMoreElements()) {
-			String childName = children.nextElement();
+			childNames.add(children.nextElement());
+		}
+
+		Collections.sort(childNames);
+
+		for (String childName : childNames) {
 			Config child;
 
 			try {
