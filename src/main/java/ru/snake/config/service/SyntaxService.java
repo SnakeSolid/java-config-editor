@@ -402,7 +402,7 @@ public class SyntaxService implements SyntaxHandler {
 								result.add(error);
 							}
 						} else if (type.equals(TYPE_NME_ATTRIBUTE)) {
-							; // do not checked now
+							; // does not checked now
 						} else if (type.equals(TYPE_STRING)) {
 							wasString = true;
 						}
