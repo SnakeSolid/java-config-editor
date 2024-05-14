@@ -4,13 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.Rectangle2D;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -206,10 +206,10 @@ public class MainFrame extends JFrame implements SiuListener {
 			public void actionPerformed(ActionEvent e) {
 				JTextPane source = (JTextPane) e.getSource();
 				int position = source.getCaretPosition();
-				Rectangle view;
+				Rectangle2D view;
 
 				try {
-					view = source.modelToView(position);
+					view = source.modelToView2D(position);
 				} catch (BadLocationException exception) {
 					logger.error("Cannot get screen position of caret", exception);
 
@@ -219,8 +219,12 @@ public class MainFrame extends JFrame implements SiuListener {
 				Point offset = source.getLocationOnScreen();
 				JList<String> suggestions = new JList<String>(new String[] { "Test", "Test", "Test" });
 				PopupFactory factory = PopupFactory.getSharedInstance();
-				final Popup popup = factory
-					.getPopup(source, suggestions, offset.x + view.x, offset.y + view.y + view.height);
+				final Popup popup = factory.getPopup(
+					source,
+					suggestions,
+					offset.x + (int) view.getX(),
+					offset.y + (int) (view.getY() + view.getHeight())
+				);
 				popup.show();
 
 				suggestions.requestFocus();
