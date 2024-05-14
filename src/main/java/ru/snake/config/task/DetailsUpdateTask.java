@@ -13,12 +13,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.hp.siu.utils.ClientException;
+
 import ru.snake.config.model.ConfigModel;
 import ru.snake.config.service.SiuService;
 import ru.snake.config.util.DetatilsDescriptor;
 import ru.snake.config.util.UpdateDetailsRunnable;
-
-import com.hp.siu.utils.ClientException;
 
 @Component
 public class DetailsUpdateTask implements ListDataListener {
