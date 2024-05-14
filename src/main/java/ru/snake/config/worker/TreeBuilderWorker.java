@@ -9,6 +9,7 @@ import java.util.regex.Matcher;
 import javax.swing.SwingWorker;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeNode;
 
 import ru.snake.config.util.NodeDescriptor;
 import ru.snake.config.util.PathDescriptor;
@@ -23,8 +24,7 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 
 	@Override
 	protected Void doInBackground() throws Exception {
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel
-				.getRoot();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
 		pathes = new LinkedList<PathDescriptor>();
 
 		unmarkNodes(root);
@@ -68,11 +68,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 	}
 
 	private void unmarkNodes(DefaultMutableTreeNode node) {
-		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> it = node.children();
+		Enumeration<TreeNode> it = node.children();
 
 		while (it.hasMoreElements()) {
-			DefaultMutableTreeNode child = it.nextElement();
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) it.nextElement();
 			NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
 			descriptor.setMark(false);
 
@@ -86,8 +85,7 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 			return;
 		}
 
-		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel
-				.getRoot();
+		DefaultMutableTreeNode root = (DefaultMutableTreeNode) treeModel.getRoot();
 
 		for (PathDescriptor descriptor : pathes) {
 			addChild(root, descriptor);
@@ -97,11 +95,10 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 	}
 
 	private void removeNodes(DefaultMutableTreeNode node) {
-		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> it = node.children();
+		Enumeration<TreeNode> it = node.children();
 
 		while (it.hasMoreElements()) {
-			DefaultMutableTreeNode child = it.nextElement();
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) it.nextElement();
 			NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
 
 			if (!descriptor.isMark()) {
@@ -114,8 +111,7 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		}
 	}
 
-	private void addChild(DefaultMutableTreeNode root,
-			PathDescriptor pathDescriptor) {
+	private void addChild(DefaultMutableTreeNode root, PathDescriptor pathDescriptor) {
 		DefaultMutableTreeNode node = root;
 
 		try (Scanner scanner = new Scanner(pathDescriptor.getPath())) {
@@ -124,14 +120,11 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 			while (scanner.hasNext()) {
 				String name = scanner.next();
 				boolean found = false;
-
-				@SuppressWarnings("unchecked")
-				Enumeration<DefaultMutableTreeNode> it = node.children();
+				Enumeration<TreeNode> it = node.children();
 
 				while (it.hasMoreElements()) {
-					DefaultMutableTreeNode child = it.nextElement();
-					NodeDescriptor descriptor = (NodeDescriptor) child
-							.getUserObject();
+					DefaultMutableTreeNode child = (DefaultMutableTreeNode) it.nextElement();
+					NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
 					String nodeName = descriptor.getName();
 
 					if (name.equals(nodeName)) {
@@ -179,14 +172,12 @@ public class TreeBuilderWorker extends SwingWorker<Void, Void> {
 		}
 	}
 
-	private void insertChild(DefaultMutableTreeNode node,
-			DefaultMutableTreeNode newChild, String newChildName) {
-		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> it = node.children();
+	private void insertChild(DefaultMutableTreeNode node, DefaultMutableTreeNode newChild, String newChildName) {
+		Enumeration<TreeNode> it = node.children();
 		int position = 0;
 
 		while (it.hasMoreElements()) {
-			DefaultMutableTreeNode child = it.nextElement();
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) it.nextElement();
 			NodeDescriptor descriptor = (NodeDescriptor) child.getUserObject();
 			String nodeName = descriptor.getName();
 

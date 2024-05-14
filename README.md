@@ -1,12 +1,21 @@
 # SIU configuration editor
 
-### Dependencies
+Simple editor for SIU configuration files. Editor supports basic validation,
+checks and autocompletions.
 
-* logback-classic (version 1.1.3);
-* jcl-over-slf4j (version 1.7.12);
-* spring-context (version 4.1.6.RELEASE);
-* SIU libraries (does not included, proprietary);
+![User interface](images/config-editor.png "User interface of SUI configuration editor")
 
-### License
+## Build
 
-All source code available under MIT License.
+This project requires SUI `jar` files to connect to server and work with configurations.
+SIU `jar` files must be installed to `lib` directory. After installing all `jar` files
+project can be build using maven:
+
+```sh
+mvn clean package
+```
+
+## License
+[license]: #license
+
+Source code is primarily distributed under the terms of the MIT license. See LICENSE for details.

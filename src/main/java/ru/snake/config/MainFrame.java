@@ -4,13 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Point;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.Rectangle2D;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -74,8 +74,7 @@ public class MainFrame extends JFrame implements SiuListener {
 
 	private static final long serialVersionUID = -8561388914130543345L;
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(MainFrame.class);
+	private static final Logger logger = LoggerFactory.getLogger(MainFrame.class);
 
 	@Autowired
 	private WindowListener exitOnClose;
@@ -168,9 +167,11 @@ public class MainFrame extends JFrame implements SiuListener {
 		JToolBar toolbar = createToolbar();
 
 		JTextPane configText = new JTextPane(model.getConfigurationModel());
-		JScrollPane configPane = new JScrollPane(configText,
-				ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane configPane = new JScrollPane(
+			configText,
+			ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+			ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED
+		);
 		configPane.setPreferredSize(new Dimension(720, 480));
 
 		// -------------------------
@@ -181,13 +182,12 @@ public class MainFrame extends JFrame implements SiuListener {
 		model.getConfigurationModel().addUndoableEditListener(editFiler);
 
 		inputMap = configText.getInputMap();
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-				InputEvent.CTRL_DOWN_MASK), new EditUndoAction(undoManager));
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z,
-				InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK),
-				new EditRedoAction(undoManager));
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F,
-				InputEvent.CTRL_DOWN_MASK), editFindAction);
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK), new EditUndoAction(undoManager));
+		inputMap.put(
+			KeyStroke.getKeyStroke(KeyEvent.VK_Z, InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK),
+			new EditRedoAction(undoManager)
+		);
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK), editFindAction);
 
 		// -------------------------
 
@@ -196,8 +196,7 @@ public class MainFrame extends JFrame implements SiuListener {
 		// -------------------------
 
 		inputMap = configText.getInputMap();
-		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,
-				InputEvent.CTRL_DOWN_MASK), "suggest");
+		inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, InputEvent.CTRL_DOWN_MASK), "suggest");
 
 		ActionMap actionMap = configText.getActionMap();
 		actionMap.put("suggest", new AbstractAction() {
@@ -207,23 +206,25 @@ public class MainFrame extends JFrame implements SiuListener {
 			public void actionPerformed(ActionEvent e) {
 				JTextPane source = (JTextPane) e.getSource();
 				int position = source.getCaretPosition();
-				Rectangle view;
+				Rectangle2D view;
 
 				try {
-					view = source.modelToView(position);
+					view = source.modelToView2D(position);
 				} catch (BadLocationException exception) {
-					logger.error("Cannot get screen position of caret",
-							exception);
+					logger.error("Cannot get screen position of caret", exception);
 
 					return;
 				}
 
 				Point offset = source.getLocationOnScreen();
-				JList<String> suggestions = new JList<String>(new String[] {
-						"Test", "Test", "Test" });
+				JList<String> suggestions = new JList<String>(new String[] { "Test", "Test", "Test" });
 				PopupFactory factory = PopupFactory.getSharedInstance();
-				final Popup popup = factory.getPopup(source, suggestions,
-						offset.x + view.x, offset.y + view.y + view.height);
+				final Popup popup = factory.getPopup(
+					source,
+					suggestions,
+					offset.x + (int) view.getX(),
+					offset.y + (int) (view.getY() + view.getHeight())
+				);
 				popup.show();
 
 				suggestions.requestFocus();
@@ -245,31 +246,44 @@ public class MainFrame extends JFrame implements SiuListener {
 		JTabbedPane infoPane = new JTabbedPane();
 		JTable problemsTable = createProblemsTable(configText);
 
-		infoPane.addTab("Problems", new JScrollPane(problemsTable,
+		infoPane.addTab(
+			"Problems",
+			new JScrollPane(
+				problemsTable,
 				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+			)
+		);
 
-		infoPane.addTab("Details",
-				new JScrollPane(new JTable(model.getDetailsModel()),
-						JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED));
+		infoPane.addTab(
+			"Details",
+			new JScrollPane(
+				new JTable(model.getDetailsModel()),
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+			)
+		);
 
 		JTextArea logText = new JTextArea(model.getLogModel());
 		logText.setFont(sansSerifFont);
 		logText.setEditable(false);
 
-		JScrollPane logScroll = new JScrollPane(logText,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane logScroll = new JScrollPane(
+			logText,
+			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+		);
 		infoPane.addTab("Log output", logScroll);
 
 		JTextArea statusText = new JTextArea(model.getStatusModel());
 		statusText.setFont(sansSerifFont);
 		statusText.setEditable(false);
 
-		JScrollPane statusScroll = new JScrollPane(statusText,
-				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		JScrollPane statusScroll = new JScrollPane(
+			statusText,
+			JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+			JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
+		);
 		infoPane.addTab("Status", statusScroll);
 
 		infoPane.setSelectedComponent(statusScroll);
@@ -289,10 +303,8 @@ public class MainFrame extends JFrame implements SiuListener {
 		createPopupMenu(treePane, configText);
 
 		JScrollPane treeScroll = new JScrollPane(treePane);
-		treeScroll
-				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		treeScroll
-				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		treeScroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		treeScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		// -------------------------
 
@@ -322,8 +334,7 @@ public class MainFrame extends JFrame implements SiuListener {
 
 	private JTable createProblemsTable(JTextPane configText) {
 		JTable problemsTable = new JTable(model.getProblemsModel());
-		problemsTable.addMouseListener(new GotoErrorListener(problemsTable, 2,
-				configText));
+		problemsTable.addMouseListener(new GotoErrorListener(problemsTable, 2, configText));
 
 		TableColumnModel columnModel = problemsTable.getColumnModel();
 
@@ -379,27 +390,27 @@ public class MainFrame extends JFrame implements SiuListener {
 		layout.setAutoCreateContainerGaps(false);
 		layout.setAutoCreateGaps(true);
 
-		layout.setHorizontalGroup(layout
-				.createSequentialGroup()
+		layout.setHorizontalGroup(
+			layout.createSequentialGroup()
 				.addGroup(
-						layout.createParallelGroup(Alignment.TRAILING, false)
-								.addComponent(serverLabel)
-								.addComponent(collectorLabel))
+					layout.createParallelGroup(Alignment.TRAILING, false)
+						.addComponent(serverLabel)
+						.addComponent(collectorLabel)
+				)
 				.addGroup(
-						layout.createParallelGroup(Alignment.TRAILING, true)
-								.addComponent(serverBox)
-								.addComponent(collectorBox)));
+					layout.createParallelGroup(Alignment.TRAILING, true)
+						.addComponent(serverBox)
+						.addComponent(collectorBox)
+				)
+		);
 
-		layout.setVerticalGroup(layout
-				.createSequentialGroup()
+		layout.setVerticalGroup(
+			layout.createSequentialGroup()
+				.addGroup(layout.createBaselineGroup(false, false).addComponent(serverLabel).addComponent(serverBox))
 				.addGroup(
-						layout.createBaselineGroup(false, false)
-								.addComponent(serverLabel)
-								.addComponent(serverBox))
-				.addGroup(
-						layout.createBaselineGroup(false, false)
-								.addComponent(collectorLabel)
-								.addComponent(collectorBox)));
+					layout.createBaselineGroup(false, false).addComponent(collectorLabel).addComponent(collectorBox)
+				)
+		);
 
 		layout.linkSize(SwingConstants.HORIZONTAL, serverBox, collectorBox);
 

@@ -19,8 +19,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
-import ru.snake.config.util.DetatilsDescriptor;
-
 import com.hp.siu.corba.PropertyInfo;
 import com.hp.siu.corba.PropertyList;
 import com.hp.siu.corba.StatusType;
@@ -35,6 +33,8 @@ import com.hp.siu.utils.ProcessManagerClient;
 import com.hp.siu.utils.SIUInfo;
 import com.hp.siu.utils.SafeFileHandlerClient;
 import com.hp.siu.utils.Stats;
+
+import ru.snake.config.util.DetatilsDescriptor;
 
 @Service
 @Scope(ConfigurableBeanFactory.SCOPE_SINGLETON)

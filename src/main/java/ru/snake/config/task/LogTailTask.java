@@ -12,15 +12,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.hp.siu.utils.ClientException;
+import com.hp.siu.utils.ClientFileNotFoundException;
+import com.hp.siu.utils.SafeFileHandlerClient;
+
 import ru.snake.config.model.ConfigModel;
 import ru.snake.config.service.SiuService;
 import ru.snake.config.service.WorkerExecutor;
 import ru.snake.config.util.TextAppender;
 import ru.snake.config.util.TrimAppender;
-
-import com.hp.siu.utils.ClientException;
-import com.hp.siu.utils.ClientFileNotFoundException;
-import com.hp.siu.utils.SafeFileHandlerClient;
 
 @Component
 public class LogTailTask implements ListDataListener, LogTailHandler {
